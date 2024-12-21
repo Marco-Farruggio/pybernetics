@@ -1,6 +1,8 @@
 import numpy as np
 from . import Layers
-from ._Typing import RealNumber
+from typing import Union
+
+RealNumber = Union[int, float] # Work around circular import from _typing.py
 
 class StochasticGradientDescent:
     def __init__(self, learning_rate: RealNumber = 0.1, clip_value: RealNumber = 5.0) -> None:
