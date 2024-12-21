@@ -1,6 +1,3 @@
-from typing import Tuple, List, Union
-from . import __version__
-from . import Layers
 import numpy as np
 
 class _BaseLoss:
