@@ -333,4 +333,78 @@ class WordPredictor:
             raise ValueError(f"Unsupported prediction method: \"{method}\".")
         
 class Phrases:
-    pass
+    """
+    Class for handling common phrases and their affirmative and negative responses.
+    
+    EG:
+    ```
+    from pybernetics.NaturalLanguageProcessing import Phrases
+
+    while True:
+        user_input = input("Would you like to continue? ")
+        if user_input.lower() in Phrases.affirmative:
+            print("Continuing...")
+            continue
+        elif user_input.lower() in Phrases.negative:
+            print("Exiting...")
+            exit()
+        else:
+            print("Please enter a valid response.")
+    ```
+
+    Notes:
+        - The affirmative and negative lists are case-insensitive.
+        - The affirmative list contains common affirmative responses.
+        - The negative list contains common negative responses.
+        - The lists are not exhaustive and may not cover all possible responses.
+        - The lists are not language-specific and may not work for all languages.
+        - They are intended for use in simple chatbots and similar applications.
+    """
+    affirmative = [
+        "yes",
+        "ofc",
+        "of course",
+        "sure",
+        "why not",
+        "y not",
+        "y",
+        "im down",
+        "i'm down",
+        "yessir",
+        "affirmative",
+        "positive",
+        "yeah",
+        "yes please",
+        "fine",
+        "i guess",
+        "ig",
+        "positive",
+        "yea",
+        "ye",
+        "yep",
+        "yup",
+    ]
+
+    negative = [
+        "no",
+        "negative",
+        "nah",
+        "nuh uh",
+        "nuh-uh",
+        "no way",
+        "im good",
+        "i'm good",
+        "no thanks",
+        "no way hoze",
+        "ofcource not",
+        "definitely not",
+        "absolutely not",
+        "nope",
+        "n",
+        "no sir",
+        "no ma'am",
+        "no maam",
+        "no mam",
+        "i dont think so",
+        "oh no",
+    ]
