@@ -1,5 +1,4 @@
 """
-
 Pybernetics
 =====
 
@@ -91,10 +90,9 @@ training_loop = NeuralNetwork.TrainingLoop(
 ```
 
 For full documentation and examples, refer to the class-level docstrings or future project documentation.
-"""
 
-# NYI
 
+Dedicated to Sam Blight"""
 
 # Base dunders & Metadata
 __version__ = "4.5.3"
@@ -107,16 +105,19 @@ __dependencies__ = ["numpy", "scikit-learn"]
 __created__ = "2024-05-12" # Rough estimate
 __license__ = "MIT" # Open-source community
 __description__ = "Pybernetics is a lightweight toolkit for the development and training of neural networks."
+__github__ = "https://github.com/WateryBird/pybernetics/tree/main"
 _random_seed = 0
 
 from . import _Utils # No 'Circular Imports'
+from . import _Typing # Typehinting lazy imports styles to not need dependencies
 from . import Datasets # No 'Circular Imports'
 from . import Layers # Requires _Utils
 from . import NaturalLanguageProcessing # Required __version__
 from . import Loss # Requires Layers, __version__
 from . import Optimizers # Requires Layers
 from . import Training # Requires Optimizer, Layers and __version__
-from . import Models # WIP
+from . import Models # Requires ^^^
+from . import _Random # No Dependencies (work in progress)
 
 __all__ = [
     "Datasets",
