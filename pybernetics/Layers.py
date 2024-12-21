@@ -5,6 +5,7 @@ Module for handling layers within a nn
 import numpy as np
 from . import _random_seed
 from . import _Utils
+from typing import Literal
 
 # Set the seed for reproducibility. NumPy uses a pseudo-random number generator 
 # to produce numbers based on an algorithm (like the Box-Muller transform) for Gaussian distribution.
@@ -30,7 +31,7 @@ class Dense:
             Computes the gradient of the loss with respect to the inputs, weights, and biases.
     """
 
-    def __init__(self, n_inputs: int, n_neurons: int) -> None:
+    def __init__(self, n_inputs: int, n_neurons: int, weights_init: Literal["random", "xavier", "he", "lecun", "zero"] = "random") -> None:
         """
         Initializes an instance of LayerDense
 
@@ -39,7 +40,29 @@ class Dense:
             n_neurons (int): The number of neurons (outputs) in the layer.
         """
 
-        self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
+        # Initialize weights based on the specified method
+        if weights_init == "random":
+            self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
+
+        elif weights_init == "xavier":
+            # Xavier initialization (Glorot)
+            self.weights = np.random.randn(n_inputs, n_neurons) * np.sqrt(2 / (n_inputs + n_neurons))
+
+        elif weights_init == "he":
+            # He initialization (for ReLU)
+            self.weights = np.random.randn(n_inputs, n_neurons) * np.sqrt(2 / n_inputs)
+
+        elif weights_init == "lecun":
+            # LeCun initialization (for SELU)
+            self.weights = np.random.randn(n_inputs, n_neurons) * np.sqrt(1 / n_inputs)
+
+        elif weights_init == "zero":
+            # All weights initialized to zero
+            self.weights = np.zeros((n_inputs, n_neurons))
+
+        else:
+            raise ValueError(f"Invalid initialization method: {weights_init}")
+
         self.biases = np.zeros((1, n_neurons))
 
     def forward(self, inputs: np.ndarray) -> None:
