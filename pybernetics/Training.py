@@ -67,6 +67,7 @@ class Loop:
             formatted_percentage = f"{(epoch / epochs) * 100:0<6.2f}%"[:7]
             formatted_loss = f"{loss:.5f}"[:7]
             formatted_total_improvement = f"{(self.first_loss - loss):0<16.5f}"[:7]
+            epochs_formatting_length = len(str(epochs))
             
             # If alerts are enabled, print the progress sheet
             if self.alert:
@@ -74,12 +75,12 @@ class Loop:
                     # If the alert frequency is set, only print the progress sheet at those intervals
                     if epoch % self.alert_freq == 0 or epoch == self.epochs:
                         # Print the progress sheet
-                        print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {formatted_epochs}")
+                        print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {epoch:>{epochs_formatting_length}}/{epochs}")
 
                 # If there is no alert frequency, assume they want all alerts
                 else:
                     # Print the progress sheet
-                    print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {formatted_epochs}")
+                    print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {epoch:>{epochs_formatting_length}}/{epochs}")
                 
             if self.debug:
                 print(inputs) # Outputs names as 'inputs' due to feedforward loop's nature
