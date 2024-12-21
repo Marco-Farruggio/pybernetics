@@ -1,8 +1,9 @@
 import numpy as np
 from . import Layers
+from ._Typing import RealNumber
 
 class StochasticGradientDescent:
-    def __init__(self, learning_rate: float = 0.1, clip_value: float = 5.0) -> None:
+    def __init__(self, learning_rate: RealNumber = 0.1, clip_value: RealNumber = 5.0) -> None:
         self.learning_rate = learning_rate
         self.clip_value = clip_value
 
