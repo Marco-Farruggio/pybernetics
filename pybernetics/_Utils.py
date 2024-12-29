@@ -1,4 +1,5 @@
 from typing import Callable, Any, Union
+from ._Typing import RealNumber
 import numpy as np
 import math
 
@@ -9,6 +10,14 @@ class Helpers:
         
         vectorized_function = np.vectorize(func)
         return vectorized_function(arr)
+    
+    class DeprecatedWarning:
+        def __init__(self, message: str = "This method is depreciated and may be removed in future updates and/or heavily changed") -> None:
+            print(f"DeprecationWarning: {message}")
+
+    class NotYetImplementedWarning:
+        def __init__(self, message: str = "This method is not yet implemented and may be added in future updates") -> None:
+            print(f"NotYetImplementedWarning: {message}")
 
 class Maths:
     __PI = 3.1415926536
@@ -40,11 +49,11 @@ class Maths:
     class ActivationFunctions:
         @staticmethod
         def sigmoid(
-                input: Union[int, float],
-                in_clip_min: Union[int, float] = -500,
-                in_clip_max: Union[int, float] = 500,
-                out_clip_min: Union[int, float] = 1e-7,
-                out_clip_max: Union[int, float] = 1 - 1e-7,
+                input: RealNumber,
+                in_clip_min: RealNumber = -500,
+                in_clip_max: RealNumber = 500,
+                out_clip_min: RealNumber = 1e-7,
+                out_clip_max: RealNumber = 1 - 1e-7,
             ) -> float:
                 
             """
@@ -67,101 +76,96 @@ class Maths:
             # Sigmoid activation function: 1 / (1 + exp(-x))
             output = 1 / (1 + np.exp(-clipped_input))
             # Clip output to avoid extreme values
-            output = np.clip(output, out_clip_min, out_clip_max)
-
-            return output
+            return np.clip(output, out_clip_min, out_clip_max)
             
         @staticmethod
-        def relu(input: Union[int, float]) -> float:
+        def relu(input: RealNumber) -> float:
             """ReLU activation function. Returns the input if positive, else returns 0."""
             return float(max(0, input))
             
         @staticmethod
-        def leaky_relu(input: Union[int, float]) -> float:
+        def leaky_relu(input: RealNumber) -> float:
             """Leaky ReLU activation function. Returns a small negative value for negative input, else the input itself."""
             if input < 0:
                 return 0.1 * input
             return float(input)
 
         @staticmethod
-        def swish(input: Union[int, float]) -> float:
-            return input * Maths.sigmoid(input)
+        def swish(input: RealNumber) -> float:
+            return input * Maths.ActivationFunctions.sigmoid(input)
             
         @staticmethod
-        def softmax(input: np.ndarray) -> np.ndarray:
-            if not isinstance(input, np.ndarray):
-                raise ValueError("Input must be a numpy array for softmax")
-
-            # Subtract max for numerical stability (prevents overflow)
-            exps = np.exp(input - np.max(input))
-            return exps / np.sum(exps)
+        def softmax(inputs: np.ndarray) -> np.ndarray:
+            # Subtract the max for numerical stability
+            exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
+            return exp_values / np.sum(exp_values, axis=1, keepdims=True)
 
         @staticmethod
-        def tanh(input: Union[int, float]) -> float:
+        def tanh(input: RealNumber) -> float:
             return np.tanh(input)
 
         @staticmethod
-        def elu(input: Union[int, float], alpha: Union[int, float] = 1) -> float:
+        def elu(input: RealNumber, alpha: RealNumber = 1) -> float:
             if input <= 0:
                 return alpha * (np.exp(input) - 1)
             
             return float(input)
 
         @staticmethod
-        def linear(input: Union[int, float]) -> float:
+        def linear(input: RealNumber) -> float:
             return float(input)
 
         @staticmethod
-        def selu(input: Union[int, float]) -> float:
+        def selu(input: RealNumber) -> float:
             if input > 0:
                 return Maths.selu_lambda * input
             
             return Maths.selu_lambda * Maths.selu_lambda * (np.exp(input) - 1)
             
         @staticmethod
-        def softplus(input: Union[int, float]) -> float:
+        def softplus(input: RealNumber) -> float:
             return np.log(1 + np.exp(input))
 
         @staticmethod
-        def softsign(input: Union[int, float]) -> float:
+        def softsign(input: RealNumber) -> float:
             return input / (1 + abs(input))
 
         @staticmethod
-        def gelu(input: Union[int, float]) -> float:
+        def gelu(input: RealNumber) -> float:
             return 0.5 * input * (1 + np.tanh(np.sqrt(2 / Maths.pi) * (input + 0.044715 * np.power(input, 3))))
 
         @staticmethod
-        def hard_sigmoid(input: Union[int, float]) -> float:
+        def hard_sigmoid(input: RealNumber) -> float:
             return np.clip(0.2 * input + 0.5, 0, 1)
             
         @staticmethod
-        def hard_swish(input: Union[int, float]) -> float:
+        def hard_swish(input: RealNumber) -> float:
             return input * Maths.ActivationFunctions.hard_sigmoid(input)
 
         @staticmethod
-        def mish(input: Union[int, float]) -> float:
+        def mish(input: RealNumber) -> float:
             return input * np.tanh(Maths.ActivationFunctions.softplus(input))
 
         @staticmethod
-        def arctan(input: Union[int, float]) -> float:
+        def arctan(input: RealNumber) -> float:
             return np.arctan(input)
 
         @staticmethod
-        def signum(input: Union[int, float]) -> float:
+        def signum(input: RealNumber) -> float:
             return np.sign(input)
 
         @staticmethod
-        def binary(input: Union[int, float]) -> float:
+        def binary(input: RealNumber) -> float:
             return 1.0 if input >= 0 else 0.0
 
         @staticmethod
-        def log_sigmoid(input: Union[int, float], stability_mode: bool = True) -> float:
+        def log_sigmoid(input: RealNumber, stability_mode: bool = True) -> float:
             if stability_mode:
                 return -np.maximum(0, input) - np.log(1 + np.exp(-np.abs(input)))
             return -np.log(1 + np.exp(-input))
 
         @staticmethod
-        def hardmax(input: Union[np.ndarray, list[Union[int, float]]]) -> Union[np.ndarray, list]:
+        def hardmax(input: Union[np.ndarray, list[RealNumber]]) -> Union[np.ndarray, list]:
             if isinstance(input, np.ndarray):
                 output = np.zeros_like(input)
                 output[np.argmax(input)] = 1
@@ -179,26 +183,26 @@ class Maths:
         class Derivatives:
             @staticmethod
             def sigmoid(
-                    input: Union[int, float],
-                    in_clip_min: Union[int, float] = -500,
-                    in_clip_max: Union[int, float] = 500,
-                    out_clip_min: Union[int, float] = 1e-7,
-                    out_clip_max: Union[int, float] = 1 - 1e-7
+                    input: RealNumber,
+                    in_clip_min: RealNumber = -500,
+                    in_clip_max: RealNumber = 500,
+                    out_clip_min: RealNumber = 1e-7,
+                    out_clip_max: RealNumber = 1 - 1e-7
                 ) -> float:
                 """Derivative of the sigmoid function, respecting clipping boundaries."""
                     
                 # Step 1: Calculate the sigmoid of the input (with clipping)
-                sigmoid_output = Maths.sigmoid(input, in_clip_min, in_clip_max, out_clip_min, out_clip_max)
+                sigmoid_output = Maths.ActivationFunctions.sigmoid(input, in_clip_min, in_clip_max, out_clip_min, out_clip_max)
                     
                 # Step 2: Apply the derivative formula: sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
                 return sigmoid_output * (1 - sigmoid_output)
 
             @staticmethod
-            def relu(input: Union[int, float]) -> float:
+            def relu(input: RealNumber) -> float:
                 return 1.0 if input > 0 else 0.0
 
             @staticmethod
-            def leaky_relu(input: Union[int, float], alpha: float = 0.1) -> float:
+            def leaky_relu(input: RealNumber, alpha: float = 0.1) -> float:
                 if input > 0: return 1
                 else: return alpha
 
@@ -208,21 +212,37 @@ class Maths:
                 return sigmoid_input + input * sigmoid_input * (1 - sigmoid_input)
 
             @staticmethod
-            def softmax(input: np.ndarray) -> np.ndarray:
+            def softmax(inputs: np.ndarray) -> np.ndarray:
+                # Needs work, not fully functional
                 # Calculate the softmax output
                 sm = Maths.ActivationFunctions.softmax(input)
-                
+
                 # Create an empty matrix for the Jacobian (derivatives)
                 jacobian_matrix = np.zeros((len(input), len(input)))
-                
+
                 for i in range(len(input)):
                     for j in range(len(input)):
                         if i == j:
                             jacobian_matrix[i][j] = sm[i] * (1 - sm[i])
                         else:
                             jacobian_matrix[i][j] = -sm[i] * sm[j]
-                
+
                 return jacobian_matrix
+                
+                """
+                Backward pass: Calculate the gradient of the loss with respect to the inputs.
+
+                dinputs = np.empty_like(inputs)
+
+                # Iterate over batches
+                for index, (single_output, single_dvalues) in enumerate(zip(output, dvalues)):
+                    # Flatten output into a diagonal matrix
+                    single_output = single_output.reshape(-1, 1)
+                    jacobian_matrix = np.diagflat(single_output) - np.dot(single_output, single_output.T)
+                    
+                    # Calculate sample-wise gradient
+                    dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
+                """
 
             @staticmethod
             def tanh(input: Union[int, float, np.ndarray]) -> Union[float, np.ndarray]:
@@ -247,7 +267,7 @@ class Maths:
                     return alpha * np.exp(input)
 
             @staticmethod    
-            def linear(input: Union[int, float]) -> float:
+            def linear(input: RealNumber) -> float:
                 return 1.0
 
             @staticmethod
@@ -256,15 +276,15 @@ class Maths:
                 return Maths.selu_lambda if input > 0 else Maths.selu_lambda * Maths.selu_alpha * math.exp(input)
 
             @staticmethod
-            def softplus(input: Union[int, float]) -> float:
+            def softplus(input: RealNumber) -> float:
                 return math.log(1 + math.exp(input))
 
             @staticmethod
-            def softsign(input: Union[int, float]) -> float:
+            def softsign(input: RealNumber) -> float:
                 return input / (1 + abs(input))
 
             @staticmethod
-            def gelu(input: Union[int, float]) -> float:
+            def gelu(input: RealNumber) -> float:
                 """
                 Compute the approximate derivative of the GELU activation function.
 
@@ -288,21 +308,21 @@ class Maths:
                 return term1 + term2
 
             @staticmethod
-            def hard_sigmoid(input: Union[int, float]) -> float:
+            def hard_sigmoid(input: RealNumber) -> float:
                 if -1 <= input <= 1:
                     return 0.5
                 else:
                     return 0.0
 
             @staticmethod    
-            def hard_swish(input: Union[int, float]) -> float:
+            def hard_swish(input: RealNumber) -> float:
                 if -3 <= input <= 3:
                     return (input + 3) / 6 + input / 6
                 else:
                     return 0.0
 
             @staticmethod    
-            def mish(input: Union[int, float]) -> float:
+            def mish(input: RealNumber) -> float:
                 exp_x = np.exp(input)
                 log_term = np.log(1 + exp_x)
                 tanh_term = np.tanh(log_term)
@@ -322,7 +342,7 @@ class Maths:
                 return 0.0 # Hardcoded return of 0 (0.0 as float)
 
             @staticmethod
-            def binary(input: Union[int, float]) -> float:
+            def binary(input: RealNumber) -> float:
                 """
                 Derivative of the 'Binary' function, though x is technically undifferentiable at x = 0, 0.0 is still returned for simplicity,
                 and per standard practise with non-differntiable points along a function
@@ -330,15 +350,15 @@ class Maths:
                 return 0.0
 
             @staticmethod
-            def log_sigmoid(input: Union[int, float]) -> float:
+            def log_sigmoid(input: RealNumber) -> float:
                 sigmoid_input = 1 / (1 + math.exp(-input))
                 return 1 - sigmoid_input
 
             @staticmethod
-            def arctan(input: Union[int, float]) -> float:
+            def arctan(input: RealNumber) -> float:
                 return 1 / (1 + input ** 2)
 
-            def hardmax(input: Union[np.ndarray, list[Union[int, float]]]) -> Union[np.ndarray, list]:
+            def hardmax(input: Union[np.ndarray, list[RealNumber]]) -> Union[np.ndarray, list]:
                 if isinstance(input, np.ndarray):
                     output = np.zeros_like(input)  # Initialize as all zeros
                     output[np.argmax(input)] = 1  # Set 1 at the max index
