@@ -4,6 +4,52 @@ from . import __version__
 from ._Typing import Optimizer, LossFunction, Layer, Dataset
 
 class Loop:
+    """
+    Loop
+    =====
+    The main training llop for any neural network created by pybernetics,
+    this class is responsible for training the network using the specified dataset,
+    optimizer, loss function, and layers. The class will perform a forward pass
+    through the network, compute the loss, perform a backward pass, and update the
+    weights of the network using the optimizer. The class will also print a progress
+    bar and the loss at each epoch.
+
+    This class is also wrapped by the 'fit'/'train' method in the Sequential model
+    class, which is a more user-friendly way to train a neural network.
+
+    Parameters:
+    -----------
+    
+    'optimizer': Optimizer
+        - The optimizer to use when updating the weights of the network.
+    
+    'dataset': Dataset
+        - The dataset to train the network on.
+        - this should be a tuple of X and y.
+    
+    'loss_function': LossFunction
+        - The loss function to use when computing the loss of the network.
+
+    'layers': List[Layer]
+        - The layers of the network to train.
+        
+    'epochs': int
+        - The number of epochs to train the network for.
+    
+    'alert': bool
+        - Whether or not to print the progress sheet at each epoch.
+    
+    'alert_freq': int
+        - The frequency at which to print the progress sheet
+        - If None, print at each and every epoch.
+
+    'debug': bool
+        - Whether or not to print the output of the network at each epoch.
+
+    Returns:
+    --------
+    None
+    """
     def __init__(
             self,
             optimizer: Optimizer,
@@ -12,7 +58,7 @@ class Loop:
             layers: List[Layer],
             epochs: int = 1000,
             alert: bool = True,
-            alert_freq: int = 100,
+            alert_freq: int = None,
             debug: bool = False
         ) -> None:
 
@@ -34,6 +80,9 @@ class Loop:
 
         for epoch in range(1, epochs + 1):
             inputs = self.X
+            
+            if self.debug:
+                print(f"Inputs: {inputs}")
             
             # Perform a forward pass through the full network
             for layer in layers:
@@ -83,4 +132,4 @@ class Loop:
                     print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {epoch:>{epochs_formatting_length}}/{epochs}")
                 
             if self.debug:
-                print(inputs) # Outputs names as 'inputs' due to feedforward loop's nature
+                print(f"Outputs: {inputs}") # Outputs names as 'inputs' due to feedforward loop's nature
