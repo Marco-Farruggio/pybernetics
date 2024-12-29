@@ -45,10 +45,3 @@ mt = _MersenneTwister(seed = mt_seed)
 
 def random(min: RealNumber = 0.0, max: RealNumber = 1.0) -> float:
     return (mt.next() / mt.period) * (max - min) + min
-
-def _testrun():
-    while True:
-        minn = float(input("Min: "))
-        maxx = float(input("Max: "))
-        value = random(min=minn, max=maxx)
-        print(f"Result: {value}")
