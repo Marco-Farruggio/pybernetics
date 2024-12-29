@@ -286,7 +286,27 @@ Class handling activation function layers, supported activation functions includ
             self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.log_sigmoid, self.inputs)
             
         elif self.function == "softmax":
-            self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.softmax(self.inputs)
+            # self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.softmax(self.inputs)
+            
+            # Reshape output to a column vector
+            # softmax_output = self.output.reshape(-1, 1)
+            # Compute the Jacobian matrix
+            # jacobian_matrix = np.diagflat(softmax_output) - np.dot(softmax_output, softmax_output.T)
+            # Multiply the Jacobian matrix by the gradient from the next layer
+            # self.dinputs = np.dot(jacobian_matrix, dvalues)
+
+            # Initialize the array for storing the gradient w.r.t. inputs
+            self.dinputs = np.zeros_like(self.inputs)
+            
+            # Iterate over each sample in the batch
+            for index, (single_output, single_dvalues) in enumerate(zip(self.output, dvalues)):
+                # Flatten the output
+                single_output = single_output.reshape(-1, 1)
+                # Compute the Jacobian matrix for the sample
+                jacobian_matrix = np.diagflat(single_output) - np.dot(single_output, single_output.T)
+                # Compute the gradient for this sample
+                self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
+
 
         elif self.function == "hardmax":
             self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.hardmax(self.inputs)
