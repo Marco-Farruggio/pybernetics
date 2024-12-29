@@ -1,41 +1,5 @@
 import pybernetics as pb
-
-"""
-# Create dataset
-X, y = pb.Datasets.spiral_data(100, 3)
-
-# Define network
-dense1 = pb.Layers.Dense(2, 3)
-activation1 = pb.Layers.ActivationFunction("relu")
-dense2 = pb.Layers.Dense(3, 3)
-nn_layers = [dense1, activation1, dense2]
-
-# Train network
-sgd_optimizer = pb.Optimizers.StochasticGradientDescent(0.01)
-cc_loss = pb.Loss.CategoricalCrossentropy()
-dataset = X, y
-
-training_loop = pb.Training.Loop(sgd_optimizer, dataset, cc_loss, nn_layers, 2000)
-
-pb._Random.testrun()
-
-dataset = pb.Datasets.spiral_data(100, 3)
-
-dense1 = pb.Layers.Dense(2, 3)
-activation1 = pb.Layers.ActivationFunction("relu")
-dense2 = pb.Layers.Dense(3, 3)
-activation2 = pb.Layers.ActivationFunction("leaky relu")
-dense3 = pb.Layers.Dense(3, 3)
-activation3 = pb.Layers.ActivationFunction("softmax")
-
-neural_network = [dense1, activation1, dense2, activation2, dense3, activation3]
-
-optimizer = pb.Optimizers.StochasticGradientDescent(0.01)
-
-loss_function = pb.Loss.CategoricalCrossentropy()
-
-training_loop = pb.Training.Loop(optimizer, dataset, loss_function, neural_network, 2000)
-"""
+import numpy as np
 
 sgd_optimizer = pb.Optimizers.SGD(0.01)
 cc_loss = pb.Loss.CC()
@@ -48,4 +12,24 @@ pbnn = pb.Models.Sequential([
     optimizer = sgd_optimizer,
     loss_function = cc_loss)
 
-pbnn.fit(sd_dataset, 100, alert_freq=None)
+pbnn.fit(sd_dataset, 1000, debug=True)
+
+inputs = np.array([[0.1, 0.2]])
+print(pbnn.process(inputs))
+
+# Example usage:
+my_array = pb.PyArrays.PyArray((2, 3, 4), fill=0)
+print(my_array)
+
+my_array2 = pb.PyArrays.PyArray((3, 2), fill=0)
+print(my_array2)
+
+# Create an identity-like array
+identity_matrix = pb.PyArrays.identity((3, 3))
+print(identity_matrix)
+
+identity_matrix_3d = pb.PyArrays.identity((3, 3, 3))
+print(identity_matrix_3d)
+
+for index in identity_matrix._iterate_indices():
+    print(f"Index: {index}")
