@@ -331,35 +331,40 @@ class WordPredictor:
 
         else:
             raise ValueError(f"Unsupported prediction method: \"{method}\".")
-        
+   
 class Phrases:
     """
-    Class for handling common phrases and their affirmative and negative responses.
-    
-    EG:
-    ```
-    from pybernetics.NaturalLanguageProcessing import Phrases
+Phrases
+=======
 
-    while True:
-        user_input = input("Would you like to continue? ")
-        if user_input.lower() in Phrases.affirmative:
-            print("Continuing...")
-            continue
-        elif user_input.lower() in Phrases.negative:
-            print("Exiting...")
-            exit()
-        else:
-            print("Please enter a valid response.")
-    ```
+Class for handling common phrases and their affirmative and negative responses.
 
-    Notes:
-        - The affirmative and negative lists are case-insensitive.
-        - The affirmative list contains common affirmative responses.
-        - The negative list contains common negative responses.
-        - The lists are not exhaustive and may not cover all possible responses.
-        - The lists are not language-specific and may not work for all languages.
-        - They are intended for use in simple chatbots and similar applications.
+Example
+-------
+```
+from pybernetics.NaturalLanguageProcessing import Phrases
+
+while True:
+    user_input = input("Would you like to continue? ")
+    if user_input.lower() in Phrases.affirmative:
+        print("Continuing...")
+        continue
+    elif user_input.lower() in Phrases.negative:
+        print("Exiting...")
+        exit()
+    else:
+        print("Please enter a valid response.")
+```
+
+Notes:
+    - The affirmative and negative lists are case-insensitive.
+    - The affirmative list contains common affirmative responses.
+    - The negative list contains common negative responses.
+    - The lists are not exhaustive and may not cover all possible responses.
+    - The lists are not language-specific and may not work for all languages.
+    - They are intended for use in simple chatbots and similar applications.
     """
+
     affirmative = [
         "yes",
         "ofc",
@@ -383,6 +388,9 @@ class Phrases:
         "ye",
         "yep",
         "yup",
+        "k",
+        "bet",
+        "ight bet"
     ]
 
     negative = [
@@ -408,3 +416,27 @@ class Phrases:
         "i dont think so",
         "oh no",
     ]
+
+class Profanity:
+    severity1 = [
+        "damn"
+        "hell",
+        "heck",
+        "darn",
+        "crap",
+        "shoot",
+        "frick",
+        "frig",
+        "fudge",
+        "freak",
+        "freaking",
+        "freakin",
+        "fricking"
+    ]
+
+    def __init__(self, severity: int = 1) -> None:
+        self.bad_words = []
+        if severity == 1:
+            self.bad_words = self.severity1
+
+        raise NotImplementedError("Profanity filtering is not yet implemented in pybernetics.")
