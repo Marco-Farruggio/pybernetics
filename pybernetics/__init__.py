@@ -95,7 +95,7 @@ For full documentation and examples, refer to the class-level docstrings or futu
 Dedicated to Sam Blight"""
 
 # Base dunders & Metadata
-__version__ = "4.5.3"
+__version__ = "4.0.0-beta"
 __author__ = "Marco Farruggio"
 __maintainer__ = "Marco Farruggio"
 __email__ = "marcofarruggiopersonal@gmail.com"
