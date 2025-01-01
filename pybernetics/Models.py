@@ -183,7 +183,7 @@ class Sequential:
     def process(self, input: np.ndarray) -> np.ndarray:
         for layer in self._model_layers:
             layer.forward(input)
-            input = layer.output
+            input = layer.outputs
         
         return input
     
