@@ -1,5 +1,5 @@
 Pybernetics
-=====
+===========
 
 Pybernetics is a lightweight Python toolkit for developing and training neural networks from scratch. 
 It is designed to be a self-contained library, avoiding the use of third-party machine learning 
@@ -21,26 +21,61 @@ Key Features:
 Modules and Classes:
 --------------------
 - **_Utils**: Internal utility functions for mathematical operations and helper methods, including:
-  - `Maths`: Implements activation functions such as ReLU, sigmoid, softmax, and their derivatives.
-  - `Helpers`: Provides methods for element-wise operations on NumPy arrays.
+    - `Maths`: Implements activation functions such as ReLU, sigmoid, softmax, and their derivatives.
+    - `Helpers`: Provides methods for element-wise operations on NumPy arrays.
 
-- **TrainingDatasets**: Generates or fetches datasets for training, including synthetic datasets 
-  like spirals or real-world datasets using OpenML.
+- **Dataset**: Generates or fetches datasets for training, including synthetic datasets 
+    like spirals or real-world datasets using OpenML.
 
 - **NaturalLanguageProcessing**: A collection of NLP tools including tokenizers, Markov chains, 
-  bag-of-words representations, and character/word predictors.
+    bag-of-words representations, and character/word predictors.
 
-- **NeuralNetwork**: Implements core neural network functionality:
-  - `LayerDense`: Fully connected layers for linear transformations.
-  - `ActivationFunction`: Handles activation layers with support for various functions.
-  - `Loss`: Base class for loss computation with a concrete implementation for categorical cross-entropy.
-  - `OptimizerSGD`: Stochastic Gradient Descent optimizer with support for gradient clipping.
-  - `TrainingLoop`: Manages forward and backward passes, loss computation, and weight updates.
+- **Layers**: Contains classes for building neural network layers, including:
+    - 'Dense': Fully connected layers with customizable input and output sizes.
+    - 'Sigmoid': Implements the sigmoid activation function for neural network layers.
+    - 'ReLU': Implements the ReLU activation function for neural network layers.
+    - 'Tanh': Implements the tanh activation function for neural network layers.
+    - 'Binary': Implements a binary step activation function.
+    - 'LeakyReLU': Implements the leaky ReLU activation function with a customizable alpha parameter.
+    - 'Swish': Implements the Swish activation function with a customizable beta parameter.
+    - 'ELU': Implements the ELU activation function with a customizable alpha parameter.
+    - 'Softmax': Implements the softmax activation function for probability distributions.
+    - 'SELU': Implements the SELU activation function with alpha and scale parameters.
+    - 'GELU': Implements the Gaussian Error Linear Unit activation function.
+    - 'Softplus': Implements the softplus activation function.
+    - 'Arctan': Implements the arctan activation function.
+    - 'Signum': Implements the sign function for activation.
+    - 'Hardmax': Implements the hardmax activation function.
+    - 'LogSigmoid': Implements the log-sigmoid activation function.
+    - 'ReLU6': Implements the ReLU6 activation function with output clipping between 0 and 6.
+    - 'TReLU': Implements the thresholded ReLU (TReLU) activation function.
+    - 'Clip': Clips inputs to a defined minimum and maximum value range.
+    - 'Normalize': Normalizes inputs to a specified range.
+    - 'Custom': Allows defining custom activation functions and their derivatives.
+
+- **Loss**: Defines loss functions for neural network training, including:
+    - `CategoricalCrossentropy`: Computes the cross-entropy loss for classification tasks.
+    - `MeanSquaredError`: Calculates the mean squared error for regression tasks.
+
+- **Optimizers**: Provides optimization algorithms for training neural networks, including:
+    - `SGD`: Stochastic Gradient Descent optimizer with customizable learning rate.
+
+- **Training**: Contains classes for training neural networks, including:
+    - `Loop`: The main training loop for training neural networks with specified optimizers, 
+        loss functions, and layers.
+
+- **Models**: Defines high-level models for training neural networks, including:
+    - `Sequential`: A feedforward neural network model that can be trained on datasets.
+
+- **_Random**: (Internal) Work in progress for random number generation and sampling.
+
+- **_Typing**: (Internal) Type hints for classes and functions, including custom types for neural network components.
+
+- **DataTypes**: Custom data types for neural network components.
 
 Dependencies:
 -------------
 - **NumPy**: Core dependency for numerical computations.
-- **scikit-learn**: Used solely for dataset retrieval via `fetch_openml`.
 
 Built-in modules:
 - **typing**: Typing for all classes and functions
@@ -63,25 +98,44 @@ or integrate its NLP tools into your projects.
 
 Example:
 --------
-```python
+```
 import pybernetics as pb
+import numpy as np
 
-# Create dataset
-X, y = pb.Datasets.spiral_data(100, 3)
+sgd_optimizer = pb.Optimizers.SGD(0.01)
+cc_loss = pb.Loss.CC()
+sd_dataset = pb.Datasets.spiral_data(100, 3)
 
-# Define network
-dense1 = pb.Layers.Dense(2, 3)
-activation1 = pb.Layers.ActivationFunction("relu")
-dense2 = pb.Layers.Dense(3, 3)
-activation2 = pb.Layers.ActivationFunction("softmax")
-nn_layers = [dense1, activation1, dense2, activation2]
+pbnn = pb.Models.Sequential([
+    pb.Layers.Dense(2, 3, "random"),
+    pb.Layers.Sigmoid(-750, 750),
+    pb.Layers.Dense(3, 3, "random"),
+    pb.Layers.Tanh(),
+    pb.Layers.Dense(3, 3, "random")],
+    optimizer = sgd_optimizer,
+    loss_function = cc_loss)
 
-# Train network
-sgd_optimizer = NeuralNetwork.Optimizers.StochasticGradientDescent(0.01)
-cc_loss = NeuralNetwork.LossCategoricalCrossentropy()
-dataset = X, y
-
-training_loop = NeuralNetwork.TrainingLoop(sgd_optimizer, dataset, cc_loss, nn_layers, 2000)
+pbnn.fit(sd_dataset, 1000)
 ```
 
 For full documentation and examples, refer to the class-level docstrings or future project documentation.
+
+Importing
+---------
+
+It is recommended to import the library using the following syntax:
+
+```
+import pybernetics as pb
+```
+
+As most of the doc strings do not include the full module path, this will make it easier to understand.
+Also it is recommended to use the 'pb' alias as it is shorter and easier to type.
+Shortens attribute chaining and makes the code more readable.
+
+Maths
+-----
+
+All mathematical operations are performed using NumPy arrays. As every function expects.
+
+Dedicated to Sam Blight
