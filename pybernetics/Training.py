@@ -87,15 +87,17 @@ class Loop:
             # Perform a forward pass through the full network
             for layer in layers:
                 layer.forward(inputs)
-                inputs = layer.output
+                inputs = layer.outputs
 
             # Compute loss
-            loss = loss_function.compute(self.layers[-1].output, self.y)
+            loss = loss_function.compute(self.layers[-1].outputs, self.y)
+            
             if self.first_loss is None:
                 self.first_loss = loss
 
             # Perform a backward pass
-            loss_function.backward(self.layers[-1].output, self.y)  # Start from the last layer's output
+            loss_function.backward(self.layers[-1].outputs, self.y)  # Start from the last layer's outputs
+            
             for layer in reversed(self.layers):
                 layer.backward(loss_function.dinputs)
 
