@@ -1,5 +1,5 @@
 Pybernetics
-===========
+=====
 
 Pybernetics is a lightweight Python toolkit for developing and training neural networks from scratch. 
 It is designed to be a self-contained library, avoiding the use of third-party machine learning 
@@ -31,27 +31,27 @@ Modules and Classes:
     bag-of-words representations, and character/word predictors.
 
 - **Layers**: Contains classes for building neural network layers, including:
-    - 'Dense': Fully connected layers with customizable input and output sizes.
-    - 'Sigmoid': Implements the sigmoid activation function for neural network layers.
-    - 'ReLU': Implements the ReLU activation function for neural network layers.
-    - 'Tanh': Implements the tanh activation function for neural network layers.
-    - 'Binary': Implements a binary step activation function.
-    - 'LeakyReLU': Implements the leaky ReLU activation function with a customizable alpha parameter.
-    - 'Swish': Implements the Swish activation function with a customizable beta parameter.
-    - 'ELU': Implements the ELU activation function with a customizable alpha parameter.
-    - 'Softmax': Implements the softmax activation function for probability distributions.
-    - 'SELU': Implements the SELU activation function with alpha and scale parameters.
-    - 'GELU': Implements the Gaussian Error Linear Unit activation function.
-    - 'Softplus': Implements the softplus activation function.
-    - 'Arctan': Implements the arctan activation function.
-    - 'Signum': Implements the sign function for activation.
-    - 'Hardmax': Implements the hardmax activation function.
-    - 'LogSigmoid': Implements the log-sigmoid activation function.
-    - 'ReLU6': Implements the ReLU6 activation function with output clipping between 0 and 6.
-    - 'TReLU': Implements the thresholded ReLU (TReLU) activation function.
-    - 'Clip': Clips inputs to a defined minimum and maximum value range.
-    - 'Normalize': Normalizes inputs to a specified range.
-    - 'Custom': Allows defining custom activation functions and their derivatives.
+    - `Dense`: Fully connected layers with customizable input and output sizes.
+    - `Sigmoid`: Implements the sigmoid activation function for neural network layers.
+    - `ReLU`: Implements the ReLU activation function for neural network layers.
+    - `Tanh`: Implements the tanh activation function for neural network layers.
+    - `Binary`: Implements a binary step activation function.
+    - `LeakyReLU`: Implements the leaky ReLU activation function with a customizable alpha parameter.
+    - `Swish`: Implements the Swish activation function with a customizable beta parameter.
+    - `ELU`: Implements the ELU activation function with a customizable alpha parameter.
+    - `Softmax`: Implements the softmax activation function for probability distributions.
+    - `SELU`: Implements the SELU activation function with alpha and scale parameters.
+    - `GELU`: Implements the Gaussian Error Linear Unit activation function.
+    - `Softplus`: Implements the softplus activation function.
+    - `Arctan`: Implements the arctan activation function.
+    - `Signum`: Implements the sign function for activation.
+    - `Hardmax`: Implements the hardmax activation function.
+    - `LogSigmoid`: Implements the log-sigmoid activation function.
+    - `ReLU6`: Implements the ReLU6 activation function with output clipping between 0 and 6.
+    - `TReLU`: Implements the thresholded ReLU (TReLU) activation function.
+    - `Clip`: Clips inputs to a defined minimum and maximum value range.
+    - `Normalize`: Normalizes inputs to a specified range.
+    - `Custom`: Allows defining custom activation functions and their derivatives.
 
 - **Loss**: Defines loss functions for neural network training, including:
     - `CategoricalCrossentropy`: Computes the cross-entropy loss for classification tasks.
