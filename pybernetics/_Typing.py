@@ -75,17 +75,39 @@ from . import Loss
 import numpy as np
 
 RealNumber = Union[int, float]
-LossFunction = Union[Loss.CategoricalCrossentropy, Loss.MeanSquaredError, Callable[[np.ndarray], np.ndarray]]
+LossFunction = Union[Loss.CategoricalCrossentropy,
+                     Loss.MeanSquaredError,
+                     Callable[[np.ndarray], np.ndarray]]
 Optimizer = Optimizers.StochasticGradientDescent
-Layer = Union[Layers.Dense, Layers.ActivationFunction]
 Array = np.ndarray
 Dataset = Tuple[np.ndarray, np.ndarray]
+Layer = Union[Layers.Dense,
+              Layers.Arctan,
+              Layers.Sigmoid,
+              Layers.ReLU,
+              Layers.LeakyReLU,
+              Layers.Binary,
+              Layers.Clip,
+              Layers.Normalize,
+              Layers.Custom,
+              Layers.ELU,
+              Layers.SELU,
+              Layers.GELU,
+              Layers.Hardmax,
+              Layers.Softmax,
+              Layers.Softplus,
+              Layers.LogSigmoid,
+              Layers.TReLU,
+              Layers.Tanh,
+              Layers.Swish,
+              Layers.Signum,
+              Layers.ReLU6]
 
 __all__ = [
     "RealNumber",
     "LossFunction",
     "Optimizer",
-    "Layer",
-    "Array", # Deprecated
-    "Dataset"
+    "Array",
+    "Dataset",
+    "Layer"
 ]
