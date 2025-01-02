@@ -1,5 +1,107 @@
 """
-Module for handling layers within a nn
+Layers
+======
+This module provides functionality for handling layers and activation functions 
+within a neural network. It includes implementations of fully connected layers 
+(Dense layers) and a variety of activation functions.
+
+Classes:
+---------
+1. Dense:
+    Represents a fully connected layer in a neural network. 
+    Allows forward and backward propagation with support for different weight initialization methods.
+
+2. Sigmoid:
+    Implements the Sigmoid activation function with support for gradient computation.
+
+3. ReLU:
+    Implements the Rectified Linear Unit (ReLU) activation function.
+
+4. Tanh:
+    Implements the hyperbolic tangent (Tanh) activation function.
+
+5. Binary:
+    Implements the Binary activation function.
+
+6. LeakyReLU:
+    Implements the Leaky Rectified Linear Unit (LeakyReLU) activation function with a configurable slope for negative inputs.
+
+7. Swish:
+    Implements the Swish activation function, which is defined as `x * sigmoid(beta * x)`.
+
+8. ELU:
+    Implements the Exponential Linear Unit (ELU) activation function.
+
+9. Softmax:
+    Implements the Softmax function for converting logits to probabilities.
+
+10. SELU:
+    Implements the Scaled Exponential Linear Unit (SELU) activation function.
+
+11. GELU:
+    Implements the Gaussian Error Linear Unit (GELU) activation function.
+
+12. Softplus:
+    Implements the Softplus activation function, which smooths the ReLU function.
+
+13. Arctan:
+    Implements the Arctan activation function and its derivative.
+
+14. Signum:
+    Implements the Signum activation function, which outputs -1, 0, or 1 based on input sign.
+
+15. Hardmax:
+    Implements the Hardmax activation function, which outputs a one-hot vector for the index of the maximum value.
+
+16. LogSigmoid:
+    Implements the LogSigmoid activation function, which is the logarithm of the sigmoid function.
+
+17. ReLU6:
+    Implements the ReLU6 activation function, which caps the output at 6.
+
+18. TReLU:
+    Implements the Thresholded ReLU (TReLU) activation function, which outputs non-zero values only above a threshold.
+
+19. Clip:
+    Implements a clipping activation function that constrains inputs to a specified range.
+
+20. Normalize:
+    Implements normalization of input values to a specified output range.
+
+21. Custom:
+    Allows defining custom activation functions with user-specified forward and backward operations.
+
+22. Conv1D:
+    Implements a kernal sliding in a 1D input across the whole input.
+
+Utilities:
+----------
+- The module uses helper methods from `_Utils` to compute element-wise activation and derivatives.
+- Supports various initialization methods for weights, including random, Xavier, He, LeCun, and zero initialization.
+
+Usage:
+------
+- Define a Dense layer to initialize learnable weights and biases.
+- Chain multiple activation functions for non-linear transformations.
+- Use the `forward` and `backward` methods for training and inference.
+
+Example:
+--------
+```python
+from pybernetics.Layers import Dense, ReLU
+from pybernetics.Models import Sequential
+import numpy as np
+
+dense = Dense(2, 1)
+relu = ReLU()
+
+X = np.array([1, 2])
+
+dense.forward(X)
+relu.forward(dense.outputs)
+
+print(f"Final Outputs: {relu.outputs}")
+```
 """
 
 import numpy as np
@@ -79,7 +181,7 @@ class Dense:
         """
 
         self.inputs = inputs
-        self.output = np.dot(inputs, self.weights) + self.biases
+        self.outputs = np.dot(inputs, self.weights) + self.biases
 
     def backward(self, dvalues: np.ndarray) -> None:
         """
@@ -96,224 +198,6 @@ class Dense:
         self.dweights = np.dot(self.inputs.T, dvalues)
         self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
         self.dinputs = np.dot(dvalues, self.weights.T)
-
-class ActivationFunction:
-    """
-Class handling activation function layers, supported activation functions include:
-
-- Definitions are pythonic (not mathematical, but serve the same purpose) utilising both 'NumPy' and 'math' for calculations and linear algebra
-- See pybernetics.NeuralNetwork.ActivationFunction._ACTIVATION_FUNCTIONS and related comments to view all activation functions
-- To view the pythonic (code based) definitions for all activation functions and derivaties, see pybernetics._Utils
-    """
-
-    # Activation functions in the format:
-    #
-    # "[reccomended name]": "[reccomended name]",
-    # "[common alias]": "[reccomended name]",
-    # ...
-    #
-    # Internals names for multi-word function names are in the format word_word, which is handled by __init__
-
-    # Define activation functions as a class-level constant
-    _ACTIVATION_FUNCTIONS = {
-        "sigmoid": "sigmoid",
-        "logistic": "sigmoid",
-        "logistic sigmoid": "sigmoid",
-        "logistic_sigmoid": "sigmoid",
-        "sig": "sigmoid",
-        "sigma": "sigmoid",
-
-        "binary": "binary",
-        "step": "binary",
-        "binary step": "binary",
-        "binary_step": "binary",
-        "bool": "binary",
-        "boolean": "binary",
-
-        "tanh": "tanh",
-        "hyperbolic tangent": "tanh",
-
-        "relu": "relu",
-        "rectified linear unit": "relu",
-        "rectifier": "relu",
-
-        "leaky relu": "leaky relu",
-        "leaky rectified linear unit": "leaky relu",
-        "leaky_relu": "leaky relu",
-
-        "softmax": "softmax",
-                
-        "swish": "swish",
-        "silu": "swish",
-
-        "elu": "elu",
-        "exponential linear unit": "elu",
-
-        "gelu": "gelu",
-        "gaussian error linear unit": "gelu",
-
-        "selu": "selu",
-        "scaled exponential linear unit": "selu",
-        "scaled elu": "selu",
-
-        "linear": "linear",
-        "identity": "linear",
-        "none": "linear",
-
-        "softplus": "softplus",
-
-        "softsign": "softsign",
-
-        "hard sigmoid": "hard sigmoid",
-        "hard_sigmoid": "hard sigmoid",
-
-        "hard swish": "hard swish",
-        "hard_swish": "hard swish",
-
-        "mish": "mish",
-                
-        "arctan": "arctan",
-        "arctangent": "arctan",
-        "atan": "arctan",
-
-        "signum": "signum",
-        "sign": "signum",
-
-        "logsigmoid": "logsigmoid",
-        "logsig": "logsigmoid",
-        "log sigmoid": "logsigmoid",
-        "log sig": "logsigmoid",
-
-        "hardmax": "hardmax",
-        "hard max": "hardmax",
-        "hard_max": "hardmax"
-    }
-
-    def __init__(self, function: str) -> None:
-        # Normalize the function name using the dictionary
-        normalized_function  = self._ACTIVATION_FUNCTIONS.get(function.lower().strip())
-            
-        if normalized_function is None:
-            supported_functions = ", ".join(sorted(set(self._ACTIVATION_FUNCTIONS.values())))
-            raise NotImplementedError(f"Activation function '{function}' is not implemented.\nSupported functions are: {supported_functions}")
-
-        self.function = normalized_function
-
-    def forward(self, inputs: np.ndarray) -> None:
-        self.inputs = inputs
-
-        if self.function == "sigmoid":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.sigmoid, self.inputs)
-
-        elif self.function == "relu":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.relu, self.inputs)
-
-        elif self.function == "tanh":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.tanh, self.inputs)
-
-        elif self.function == "binary":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.binary, self.inputs)
-
-        elif self.function == "leaky relu":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.leaky_relu, self.inputs)
-
-        elif self.function == "elu":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.elu, self.inputs)
-
-        elif self.function == "softplus":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.softplus, self.inputs)
-
-        elif self.function == "selu":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.selu, self.inputs)
-
-        elif self.function == "gelu":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.gelu, self.inputs)
-
-        elif self.function == "logsigmoid":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.log_sigmoid, self.inputs)
-
-        elif self.function == "swish":
-            self.output = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.swish, self.inputs)
-
-        elif self.function == "hardmax":
-            self.output = _Utils.Maths.ActivationFunctions.hardmax(self.inputs)
-        
-        elif self.function == "softmax":
-            self.output = _Utils.Maths.ActivationFunctions.softmax(self.inputs)
-    
-    def backward(self, dvalues: np.ndarray) -> None:
-        if self.function == "sigmoid":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.sigmoid, self.inputs)
-
-        elif self.function == "relu":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.relu, self.inputs)
-
-        elif self.function == "tanh":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.tanh, self.inputs)
-
-        elif self.function == "binary":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.binary, self.inputs)
-
-        elif self.function == "leaky relu":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.leaky_relu, self.inputs)
-
-        elif self.function == "swish":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.swish, self.inputs)
-
-        elif self.function == "elu":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.elu, self.inputs)
-
-        elif self.function == "linear":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.linear, self.inputs)
-
-        elif self.function == "softplus":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.softplus, self.inputs)
-
-        elif self.function == "softsign":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.softsign, self.inputs)
-
-        elif self.function == "hard sigmoid":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.hard_sigmoid, self.inputs)
-
-        elif self.function == "hard swish":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.hard_swish, self.inputs)
-
-        elif self.function == "mish":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.mish, self.inputs)
-
-        elif self.function == "arctan":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.arctan, self.inputs)
-
-        elif self.function == "signum":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.signum, self.inputs)
-
-        elif self.function == "log sigmoid":
-            self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.log_sigmoid, self.inputs)
- 
-        elif self.function == "softmax":
-            # self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.softmax(self.inputs)
-            
-            # Reshape output to a column vector
-            # softmax_output = self.output.reshape(-1, 1)
-            # Compute the Jacobian matrix
-            # jacobian_matrix = np.diagflat(softmax_output) - np.dot(softmax_output, softmax_output.T)
-            # Multiply the Jacobian matrix by the gradient from the next layer
-            # self.dinputs = np.dot(jacobian_matrix, dvalues)
-
-            # Initialize the array for storing the gradient w.r.t. inputs
-            self.dinputs = np.zeros_like(self.inputs)
-            
-            # Iterate over each sample in the batch
-            for index, (single_output, single_dvalues) in enumerate(zip(self.output, dvalues)):
-                # Flatten the output
-                single_output = single_output.reshape(-1, 1)
-                # Compute the Jacobian matrix for the sample
-                jacobian_matrix = np.diagflat(single_output) - np.dot(single_output, single_output.T)
-                # Compute the gradient for this sample
-                self.dinputs[index] = np.dot(jacobian_matrix, single_dvalues)
-
-        elif self.function == "hardmax":
-            self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.hardmax(self.inputs)
 
 class Sigmoid:
     def __init__(self, in_clip_min: RealNumber = -500, in_clip_max: RealNumber = 500, out_clip_min: RealNumber = 1e-7, out_clip_max: RealNumber = 1 - 1e-7) -> None:
@@ -537,6 +421,17 @@ class ReLU6:
         """Backward pass for ReLU6."""
         self.dinputs = dvalues * (self.inputs > 0) * (self.inputs < 6)  # Derivative for ReLU6
 
+class TReLU:
+    def __init__(self, theta: RealNumber = 1.0) -> None:
+        self.theta = theta
+
+    def forward(self, inputs: np.ndarray) -> None:
+        self.inputs = inputs
+        self.outputs = np.where(self.inputs > self.theta, self.inputs, 0)
+
+    def backward(self, dvalues: np.ndarray) -> None:
+        self.dinputs = dvalues * (self.inputs > self.theta)
+
 class Clip:
     def __init__(self, min_: RealNumber, max_: RealNumber) -> None:
         """
@@ -594,17 +489,6 @@ class Normalize:
         # Gradients pass unchanged through normalization, scaled by the input-output ratio
         self.dinputs = dvalues * (self.out_max - self.out_min) / (self.in_max - self.in_min)
 
-class TReLU:
-    def __init__(self, theta: RealNumber = 1.0) -> None:
-        self.theta = theta
-
-    def forward(self, inputs: np.ndarray) -> None:
-        self.inputs = inputs
-        self.outputs = np.where(self.inputs > self.theta, self.inputs, 0)
-
-    def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * (self.inputs > self.theta)
-
 class Custom:
     def __init__(self, activation_function: Callable[[np.ndarray], np.ndarray], derivative_function: Callable[[np.ndarray], np.ndarray]) -> None:
         """
@@ -634,3 +518,120 @@ class Custom:
         :param dvalues: Gradients flowing from the next layer.
         """
         self.dinputs = dvalues * self.derivative_function(self.inputs)
+
+class Conv1D:
+    """
+    A 1D Convolutional layer for a neural network.
+
+    This layer applies a 1D convolution operation on the input data. It slides a kernel across the input to produce output feature maps.
+
+    Attributes:
+        weights (numpy.ndarray): The convolutional filters (kernels) of the layer, initialized randomly.
+        biases (numpy.ndarray): The biases of the layer, initialized to zero.
+        stride (int): The step size by which the kernel moves across the input.
+        padding (int): The number of zero-padding applied to the input for the convolution.
+    
+    Methods:
+        forward(inputs):
+            Computes the output of the layer given the input data.
+        
+        backward(dvalues):
+            Computes the gradient of the loss with respect to the inputs, weights, and biases.
+    """
+
+    def __init__(self, n_inputs: int, n_filters: int, kernel_size: int, stride: int = 1, padding: int = 0, weights_init: Literal["random", "xavier", "he", "lecun", "zero"] = "random") -> None:
+        """
+        Initializes an instance of Conv1D
+        
+        Parameters:
+            n_inputs (int): The number of input features (channels).
+            n_filters (int): The number of filters (kernels) in the layer.
+            kernel_size (int): The size of the kernel (filter).
+            stride (int): The step size for the convolution.
+            padding (int): The number of zero-padding applied to the input.
+            weights_init (str): The method for initializing the weights ("random", "xavier", "he", "lecun", "zero").
+        """
+
+        self.stride = stride
+        self.padding = padding
+
+        # Initialize weights based on the specified method
+        if weights_init == "random":
+            self.weights = 0.1 * np.random.randn(n_filters, n_inputs, kernel_size)
+        
+        elif weights_init == "xavier":
+            self.weights = np.random.randn(n_filters, n_inputs, kernel_size) * np.sqrt(2 / (n_inputs + kernel_size))
+        
+        elif weights_init == "he":
+            self.weights = np.random.randn(n_filters, n_inputs, kernel_size) * np.sqrt(2 / n_inputs)
+        
+        elif weights_init == "lecun":
+            self.weights = np.random.randn(n_filters, n_inputs, kernel_size) * np.sqrt(1 / n_inputs)
+        
+        elif weights_init == "zero":
+            self.weights = np.zeros((n_filters, n_inputs, kernel_size))
+        
+        else:
+            raise ValueError(f"Invalid initialization method: {weights_init}")
+
+        self.biases = np.zeros((n_filters, 1))
+
+    def forward(self, inputs: np.ndarray) -> None:
+        """
+        Performs the forward pass of the convolutional layer.
+        
+        Parameters:
+            inputs (numpy.ndarray): The input data to the layer.
+        
+        Returns:
+            None: The output is stored in the `self.outputs` attribute.
+        """
+        self.inputs = inputs
+        batch_size, n_channels, input_length = inputs.shape
+        n_filters, n_channels, kernel_size = self.weights.shape
+
+        # Apply padding if necessary
+        if self.padding > 0:
+            self.inputs = np.pad(self.inputs, ((0, 0), (0, 0), (self.padding, self.padding)), mode='constant', constant_values=0)
+        
+        output_length = (input_length - kernel_size) // self.stride + 1
+        self.outputs = np.zeros((batch_size, n_filters, output_length))
+
+        for i in range(batch_size):
+            for f in range(n_filters):
+                for j in range(output_length):
+                    start = j * self.stride
+                    end = start + kernel_size
+                    self.outputs[i, f, j] = np.sum(self.inputs[i, :, start:end] * self.weights[f]) + self.biases[f]
+    
+    def backward(self, dvalues: np.ndarray) -> None:
+        """
+        Performs the backward pass of the convolutional layer.
+        
+        Parameters:
+            dvalues (numpy.ndarray): The gradient of the loss with respect to the output.
+        
+        Returns:
+            None: The gradients of the loss with respect to the inputs, weights, and biases 
+            are stored in the attributes `self.dinputs`, `self.dweights`, and `self.dbiases`.
+        """
+        batch_size, n_filters, output_length = dvalues.shape
+        _, n_channels, input_length = self.inputs.shape
+        _, _, kernel_size = self.weights.shape
+
+        self.dweights = np.zeros_like(self.weights)
+        self.dbiases = np.zeros_like(self.biases)
+        self.dinputs = np.zeros_like(self.inputs)
+
+        for i in range(batch_size):
+            for f in range(n_filters):
+                self.dbiases[f] += np.sum(dvalues[i, f])
+                for j in range(output_length):
+                    start = j * self.stride
+                    end = start + kernel_size
+                    self.dweights[f] += self.inputs[i, :, start:end] * dvalues[i, f, j]
+                    self.dinputs[i, :, start:end] += self.weights[f] * dvalues[i, f, j]
+    
+        # Remove padding from the input gradients if padding was applied
+        if self.padding > 0:
+            self.dinputs = self.dinputs[:, :, self.padding:-self.padding] if self.padding > 0 else self.dinputs
