@@ -1,6 +1,6 @@
 """
 Pybernetics
-=====
+===========
 
 Pybernetics is a lightweight Python toolkit for developing and training neural networks from scratch. 
 It is designed to be a self-contained library, avoiding the use of third-party machine learning 
@@ -53,6 +53,7 @@ Modules and Classes:
     - `Clip`: Clips inputs to a defined minimum and maximum value range.
     - `Normalize`: Normalizes inputs to a specified range.
     - `Custom`: Allows defining custom activation functions and their derivatives.
+    - `Conv1D`: Implements a sliding 1D kernal applied to the input.
 
 - **Loss**: Defines loss functions for neural network training, including:
     - `CategoricalCrossentropy`: Computes the cross-entropy loss for classification tasks.
@@ -67,8 +68,6 @@ Modules and Classes:
 
 - **Models**: Defines high-level models for training neural networks, including:
     - `Sequential`: A feedforward neural network model that can be trained on datasets.
-
-- **_Random**: (Internal) Work in progress for random number generation and sampling.
 
 - **_Typing**: (Internal) Type hints for classes and functions, including custom types for neural network components.
 
@@ -139,10 +138,12 @@ Maths
 
 All mathematical operations are performed using NumPy arrays. As every function expects.
 
-Dedicated to Sam Blight"""
+Dedication
+----------
+- Sam Blight"""
 
 # Base dunders & Metadata
-__version__ = "4.0.0-beta"
+__version__ = "4.0.1-beta"
 __author__ = "Marco Farruggio"
 __maintainer__ = "Marco Farruggio"
 __email__ = "marcofarruggiopersonal@gmail.com"
@@ -165,7 +166,6 @@ from . import Loss # Requires Layers, __version__
 from . import Optimizers # Requires Layers
 from . import Training # Requires Optimizer, Layers and __version__
 from . import Models # Requires ^^^
-from . import _Random # No Dependencies (work in progress)
 from . import PyArrays
 from . import DataTypes
 
@@ -176,10 +176,7 @@ __all__ = [
     "Loss",
     "Optimizers",
     "Training",
-    "Models"
+    "Models",
+    "PyArrays",
+    "DataTypes"
 ]
-
-# TODO:
-# - Docstrings
-# - Testing
-# - Update __init__.__doc__
