@@ -143,10 +143,13 @@ class Dense:
             n_inputs (int): The number of input features.
             n_neurons (int): The number of neurons (outputs) in the layer.
         """
+        self.n_inputs = n_inputs
+        self.n_neurons = n_neurons
+        self.weights_init = weights_init
 
         # Initialize weights based on the specified method
         if weights_init == "random":
-            self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
+            self.weights = np.random.randn(n_inputs, n_neurons) * 0.1
 
         elif weights_init == "xavier":
             # Xavier initialization (Glorot)
@@ -168,6 +171,31 @@ class Dense:
             raise ValueError(f"Invalid initialization method: {weights_init}")
 
         self.biases = np.zeros((1, n_neurons))
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Dense layer
+        """
+        return {
+            "n_inputs": self.n_inputs,
+            "n_neurons": self.n_neurons,
+            "weights_init": self.weights_init,
+            "weights": self.weights,
+            "biases": self.biases
+        }
+    
+    @classmethod
+    def from_config(cls, config) -> 'Dense':
+        from_config_dense = cls(
+                                n_inputs=config["n_inputs"],
+                                n_neurons=config["n_neurons"],
+                                weights_init=config["weights_init"],
+                               )
+
+        from_config_dense.weights = config["weights"]
+        from_config_dense.biases = config["biases"]
+
+        return from_config_dense
 
     def forward(self, inputs: np.ndarray) -> None:
         """
@@ -200,18 +228,25 @@ class Dense:
         self.dinputs = np.dot(dvalues, self.weights.T)
 
 class Sigmoid:
-    def __init__(self, in_clip_min: RealNumber = -500, in_clip_max: RealNumber = 500, out_clip_min: RealNumber = 1e-7, out_clip_max: RealNumber = 1 - 1e-7) -> None:
-        self.in_clip_min = in_clip_min
-        self.in_clip_max = in_clip_max
-        self.out_clip_min = out_clip_min
-        self.out_clip_max = out_clip_max
+    def __init__(self) -> None:
+        pass
         
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.sigmoid, self.inputs, self.in_clip_min, self.in_clip_max, self.out_clip_min, self.out_clip_max)
+        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.sigmoid, self.inputs)
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.sigmoid, self.inputs, self.in_clip_min, self.in_clip_max, self.out_clip_min, self.out_clip_max)
+        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.sigmoid, self.inputs)
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Sigmoid layer
+        """
+        return {}
+    
+    @classmethod
+    def from_config(cls, config=None) -> 'Sigmoid':
+        return cls()
 
 class ReLU:
     def __init__(self) -> None:
@@ -224,16 +259,33 @@ class ReLU:
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.relu, self.inputs)
 
-class Tanh:
-    def __init__(self) -> None:
-        pass
+    def get_config(self):
+        """
+        Returns the configuartion of the ReLU layer
+        """
+        return {}
 
+    @classmethod
+    def from_config(cls, config=None) -> 'ReLU':
+        return cls()
+
+class Tanh:
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.tanh, self.inputs)
+        self.outputs = np.tanh(inputs)
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.tanh, self.inputs)
+        self.dinputs = dvalues * (1 - self.outputs ** 2)
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Tanh layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Tanh':
+        return cls()
 
 class Binary:
     def __init__(self) -> None:
@@ -246,8 +298,18 @@ class Binary:
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.binary, self.inputs)
 
+    def get_config(self):
+        """
+        Returns the configuartion of the Binary layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Binary':
+        return cls()
+
 class LeakyReLU:
-    def __init__(self, alpha: RealNumber) -> None: # NOTE: UPDATE REALNUMBER IMPORT FROM _TYPING
+    def __init__(self, alpha: RealNumber) -> None:
         self.alpha = alpha
 
     def forward(self, inputs: np.ndarray) -> None:
@@ -257,8 +319,20 @@ class LeakyReLU:
     def backward(self, dvalues: np.ndarray) -> None:
         self.outputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.leaky_relu, self.inputs, self.alpha)
 
+    def get_config(self):
+        """
+        Returns the configuartion of the LeakyReLU layer
+        """
+        return {
+            "alpha": self.alpha
+        }
+
+    @classmethod
+    def from_config(cls, config) -> 'LeakyReLU':
+        return cls(**config)
+
 class Swish:
-    def __init__(self, beta: RealNumber = 1) -> None: # NOTE: UPDATE REALNUMBER IMPORT FROM _TYPING
+    def __init__(self, beta: RealNumber = 1) -> None:
         self.beta = beta
 
     def forward(self, inputs: np.ndarray) -> None:
@@ -267,6 +341,18 @@ class Swish:
 
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.swish, self.inputs) # NEEDS WORK
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Swish layer
+        """
+        return {
+            "beta": self.beta
+        }
+
+    @classmethod
+    def from_config(cls, config) -> 'Swish':
+        return cls(**config)
 
 class ELU:
     def __init__(self, alpha: RealNumber = 1) -> None:
@@ -278,6 +364,18 @@ class ELU:
 
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * _Utils.Maths.ActivationFunctions.Derivatives.elu(self.inputs, self.alpha)
+
+    def get_config(self):
+        """
+        Returns the configuartion of the ELU layer
+        """
+        return {
+            "alpha": self.alpha
+        }
+
+    @classmethod
+    def from_config(cls, config) -> 'ELU':
+        return cls(**config)
 
 class Softmax:
     def __init__(self) -> None:
@@ -296,6 +394,16 @@ class Softmax:
             jacobian_matrix = np.diagflat(self.outputs[i]) - np.outer(self.outputs[i], self.outputs[i])
             self.dinputs[i] = np.dot(jacobian_matrix, dvalues[i])
 
+    def get_config(self):
+        """
+        Returns the configuartion of the Softmax layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Softmax':
+        return cls()
+
 class SELU:
     def __init__(self, alpha: RealNumber = 1.67326, scale: RealNumber = 1.0507) -> None:
         self.alpha = alpha  # Coefficient for the negative part of the function
@@ -309,6 +417,19 @@ class SELU:
     def backward(self, dvalues: np.ndarray) -> None:
         """Calculates the gradient (derivative) of the SELU activation function."""
         self.dinputs = dvalues * self.scale * np.where(self.inputs > 0, 1, self.alpha * np.exp(self.inputs))
+
+    def get_config(self):
+        """
+        Returns the configuartion of the SELU layer
+        """
+        return {
+            "alpha": self.alpha,
+            "scale": self.scale
+        }
+
+    @classmethod
+    def from_config(cls, config) -> 'SELU':
+        return cls(**config)
 
 class GELU:
     def __init__(self) -> None:
@@ -334,6 +455,16 @@ class GELU:
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * self.gelu_derivative(self.inputs)
 
+    def get_config(self):
+        """
+        Returns the configuartion of the GELU layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'GELU':
+        return cls()
+
 class Softplus:
     def __init__(self) -> None:
         pass
@@ -347,6 +478,16 @@ class Softplus:
         """Compute the derivative of Softplus with respect to the inputs."""
         self.dinputs = dvalues * (1 / (1 + np.exp(-self.inputs)))
 
+    def get_config(self):
+        """
+        Returns the configuartion of the Softplus layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Softplus':
+        return cls()
+
 class Arctan:
     def __init__(self) -> None:
         pass
@@ -359,6 +500,16 @@ class Arctan:
     def backward(self, dvalues: np.ndarray) -> None:
         """Compute the derivative of Arctan with respect to the inputs."""
         self.dinputs = dvalues / (1 + self.inputs**2)  # Derivative of Arctan
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Arctan layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Arctan':
+        return cls()
 
 class Signum:
     def __init__(self) -> None:
@@ -374,6 +525,16 @@ class Signum:
         # The derivative of the signum function is 0 everywhere except at 0,
         # where it's undefined, so we simply return 0 as a placeholder.
         self.dinputs = np.zeros_like(self.inputs)
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Signum layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Signum':
+        return cls()
 
 class Hardmax:
     def __init__(self) -> None:
@@ -394,6 +555,16 @@ class Hardmax:
         # Set the gradient to 1 for the index of the maximum value
         self.dinputs[np.argmax(self.inputs)] = 1  # Derivative is 1 at the max value index
 
+    def get_config(self):
+        """
+        Returns the configuartion of the Hardmax layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Hardmax':
+        return cls()
+
 class LogSigmoid:
     def __init__(self) -> None:
         pass
@@ -408,6 +579,16 @@ class LogSigmoid:
         sigmoid = 1 / (1 + np.exp(-self.inputs))  # Sigmoid function
         self.dinputs = dvalues * sigmoid * (1 - sigmoid)  # Sigmoid derivative
 
+    def get_config(self):
+        """
+        Returns the configuartion of the LogSigmoid layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'LogSigmoid':
+        return cls()
+
 class ReLU6:
     def __init__(self) -> None:
         pass
@@ -421,6 +602,16 @@ class ReLU6:
         """Backward pass for ReLU6."""
         self.dinputs = dvalues * (self.inputs > 0) * (self.inputs < 6)  # Derivative for ReLU6
 
+    def get_config(self):
+        """
+        Returns the configuartion of the ReLU6 layer
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'ReLU6':
+        return cls()
+
 class TReLU:
     def __init__(self, theta: RealNumber = 1.0) -> None:
         self.theta = theta
@@ -431,6 +622,18 @@ class TReLU:
 
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = dvalues * (self.inputs > self.theta)
+
+    def get_config(self) -> dict:
+        """
+        Returns the configuartion of the GELU layer
+        """
+        return {
+            "theta": self.theta
+        }
+
+    @classmethod
+    def from_config(cls, config: dict) -> 'GELU':
+        return cls(**config)
 
 class Clip:
     def __init__(self, min_: RealNumber, max_: RealNumber) -> None:
@@ -457,6 +660,19 @@ class Clip:
         """
         # Gradients are passed only where the inputs are not clipped
         self.dinputs = dvalues * ((self.inputs > self.clip_min) & (self.inputs < self.clip_max))
+
+    def get_config(self):
+        """
+        Returns the configuartion of the Clip layer
+        """
+        return {
+            "min_": self.clip_min,
+            "max_": self.clip_max
+        }
+
+    @classmethod
+    def from_config(cls, config: dict) -> 'Clip':
+        return cls(**config)
 
 class Normalize:
     def __init__(self, in_min: RealNumber, in_max: RealNumber, out_min: RealNumber, out_max: RealNumber) -> None:
@@ -489,6 +705,21 @@ class Normalize:
         # Gradients pass unchanged through normalization, scaled by the input-output ratio
         self.dinputs = dvalues * (self.out_max - self.out_min) / (self.in_max - self.in_min)
 
+    def get_config(self):
+        """
+        Returns the configuartion of the Normalization layer
+        """
+        return {
+            "in_min": self.in_min,
+            "in_max": self.in_max,
+            "out_min": self.out_min,
+            "out_max": self.out_max
+        }
+
+    @classmethod
+    def from_config(cls, config: dict) -> 'Normalize':
+        return cls(**config)
+
 class Custom:
     def __init__(self, activation_function: Callable[[np.ndarray], np.ndarray], derivative_function: Callable[[np.ndarray], np.ndarray]) -> None:
         """
@@ -519,6 +750,46 @@ class Custom:
         """
         self.dinputs = dvalues * self.derivative_function(self.inputs)
 
+    def get_config(self) -> dict:
+        return {}
+    
+    @classmethod
+    def from_config(cls, config: dict) -> 'Custom':
+        return cls(**config)
+
+class Flatten:
+    def __init__(self) -> None:
+        pass
+
+    def forward(self, inputs: np.ndarray) -> np.ndarray:
+        """
+        Flatten the input to a 1D vector.
+        """
+        self.input_shape = inputs.shape  # Store the original shape for later use
+        self.outputs = inputs.flatten()
+        return self.outputs
+
+    def backward(self, dvalues: np.ndarray) -> np.ndarray:
+        """
+        Reshape the gradients back to the original input shape.
+        """
+        self.dinputs = dvalues.reshape(self.input_shape)
+        return self.dinputs
+
+    def get_config(self) -> dict:
+        """
+        Return an empty config as Flatten doesn't require any parameters.
+        """
+        return {}
+
+    @classmethod
+    def from_config(cls, config=None) -> 'Flatten':
+        """
+        Create an instance of Flatten (no parameters needed).
+        """
+        return cls()
+
+# Low support below:
 class Conv1D:
     """
     A 1D Convolutional layer for a neural network.
