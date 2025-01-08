@@ -68,6 +68,8 @@ Modules and Classes:
 
 - **Models**: Defines high-level models for training neural networks, including:
     - `Sequential`: A feedforward neural network model that can be trained on datasets.
+    - `Save`: Saves a neural network using pickle as a .pkl file in compressed binary.
+    - `Load`: Loads a neural network using pickle unpackagine by a pybernetics-made .pkl file
 
 - **_Typing**: (Internal) Type hints for classes and functions, including custom types for neural network components.
 
