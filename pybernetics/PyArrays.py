@@ -29,7 +29,7 @@ class PyArray:
         else:
             for i in range(shape[0]):
                 yield from self._iterate_indices(shape[1:], current_index + (i,))
-    
+
     def _get_value(self, index_tuple):
         # If fill is callable, call the function with the index tuple
         if callable(self.fill):
