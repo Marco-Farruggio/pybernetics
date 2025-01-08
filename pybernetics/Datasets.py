@@ -1,5 +1,5 @@
-from sklearn.datasets import fetch_openml # Sklearn import solely for 'fetch_openml' in the 'fetch' function
 import numpy as np
+from ._Typing import RealNumber
 
 def spiral_data(samples: int = 100, classes: int = 3, noise = 0.2) -> tuple[np.ndarray, np.ndarray]:
     # Copyright (c) 2015 Andrej Karpathy
@@ -21,5 +21,11 @@ def spiral_data(samples: int = 100, classes: int = 3, noise = 0.2) -> tuple[np.n
 
         X[ix] = np.c_[r * np.sin(t * 2.5), r * np.cos(t * 2.5)]
         y[ix] = class_number
+
+    return X, y
+
+def sin(x_min: RealNumber = -10, x_max: RealNumber = 10, nsteps: int = 100):
+    X = np.linspace(x_min, x_max, nsteps)
+    y = np.sin(X)
 
     return X, y
