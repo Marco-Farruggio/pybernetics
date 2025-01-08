@@ -14,5 +14,20 @@ class StochasticGradientDescent:
         layer.biases -= self.learning_rate * layer.dbiases
         layer.weights -= self.learning_rate * layer.dweights
 
+    def get_config(self) -> dict:
+        return {
+            "learning_rate": self.learning_rate,
+            "clip_value": self.clip_value
+        }
+    
+    @classmethod
+    def from_config(cls, config: dict) -> 'StochasticGradientDescent':
+        return cls(**config)
+
+class GradientDescent:
+    def __init__(self) -> None:
+        pass
+
 # Aliasing (via class level cloning)
 SGD = StochasticGradientDescent
+GD = GradientDescent
