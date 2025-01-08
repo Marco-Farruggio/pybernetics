@@ -143,13 +143,13 @@ Dedication
 - Sam Blight"""
 
 # Base dunders & Metadata
-__version__ = "4.0.1-beta"
+__version__ = "4.3.2-beta"
 __author__ = "Marco Farruggio"
 __maintainer__ = "Marco Farruggio"
 __email__ = "marcofarruggiopersonal@gmail.com"
 __status__ = "development"
 __platform__ = "Cross-platform"
-__dependencies__ = ["numpy", "scikit-learn"]
+__dependencies__ = ["numpy"]
 __created__ = "2024-05-12" # Rough estimate
 __license__ = "MIT" # Open-source community
 __description__ = "Pybernetics is a lightweight toolkit for the development and training of neural networks."
