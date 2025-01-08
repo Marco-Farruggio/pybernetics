@@ -1,12 +1,27 @@
 import numpy as np
 
 class _BaseLoss:
-    def compute(self, output: np.ndarray, y: np.ndarray) -> float:
-        sample_losses = self.forward(output, y)
-        data_loss = np.mean(sample_losses)
-        return data_loss
+    def compute(self, outputs: np.ndarray, y_true: np.ndarray) -> float:
+        sample_losses = self.forward(outputs, y_true)
+        return np.mean(sample_losses)
+    
+    def __call__(self, outputs: np.ndarray, y_true: np.ndarray) -> float:
+        """
+        Effectively wraps 'compute' in the call hierarchy to abstract away the call
+        """
+        return self.compute(outputs, y_true)
 
 class CategoricalCrossentropy(_BaseLoss):
+    def __init__(self) -> None:
+        pass
+
+    def get_config(self) -> dict:
+        return {}
+    
+    @classmethod
+    def from_config(cls, config=None) -> 'CategoricalCrossentropy':
+        return cls()
+
     def forward(self, y_pred: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         samples = len(y_pred)
         y_pred_clipped = np.clip(y_pred, 1e-7, 1 - 1e-7)
@@ -38,19 +53,49 @@ class CategoricalCrossentropy(_BaseLoss):
         self.dinputs /= samples
 
 class MeanSquaredError(_BaseLoss):
+    def __init__(self) -> None:
+        pass
+
+    def get_config(self) -> dict:
+        return {}
+    
+    @classmethod
+    def from_config(cls, config=None) -> 'MeanSquaredError':
+        return cls()
+
     def forward(self, y_pred: np.ndarray, y_true: np.ndarray) -> np.ndarray:
         """
         Computes the Mean Squared Error (MSE) loss for each sample.
         """
-        return np.mean(np.square(y_pred - y_true), axis=-1)
+        self.difference = y_pred - y_true
+        return self.difference ** 2
 
-    def backward(self, y_pred: np.ndarray, y_true: np.ndarray) -> None:
+    def backward(self) -> None:
         """
         Computes the gradient of the MSE loss with respect to the inputs.
         """
-        samples = len(y_pred)
-        # Gradient of MSE: 2 * (y_pred - y_true) / N
-        self.dinputs = 2 * (y_pred - y_true) / samples
+        self.dinputs = 2 * self.difference / len(self.difference)
+        return self.dinputs
+    
+class MeanAbsoluteError:
+    def __init__(self) -> None:
+        pass
+
+    def forward(self):
+        pass
+
+    def backward(self):
+        pass
+
+class BinaryCrossentropy:
+    def __init__(self) -> None:
+        pass
+
+    def forward(self):
+        pass
+
+    def backward(self):
+        pass
 
 MSE = MeanSquaredError # Allow common aliasing for 'MeanSquaredError'
 CC = CategoricalCrossentropy # Allow aliasing for 'CatagoricalCrossentropy'
