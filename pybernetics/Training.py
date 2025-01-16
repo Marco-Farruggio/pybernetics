@@ -54,7 +54,7 @@ class Loop:
             self,
             optimizer: Optimizer,
             dataset: Dataset,
-            loss_function,
+            loss_function: LossFunction,
             layers: List[Layer],
             epochs: int = 1000,
             alert: bool = True,
@@ -90,38 +90,44 @@ class Loop:
                 inputs = layer.outputs
 
             # Compute loss
-            loss = loss_function.compute(self.layers[-1].outputs, self.y)
+            loss = loss_function.compute(inputs, self.y)
             
             if self.first_loss is None:
                 self.first_loss = loss
 
             # Perform a backward pass
-            loss_function.backward(self.layers[-1].outputs, self.y)  # Start from the last layer's outputs
-            
-            for layer in reversed(self.layers):
-                layer.backward(loss_function.dinputs)
+            loss_grad = loss_function.backward()
+
+            reversed_layers = self.layers[::-1]
+
+            reversed_layers[0].backward(loss_grad)
+
+            last_layer = reversed_layers[0]
+
+            for layer in reversed_layers[1:]:
+                layer.backward(last_layer.dinputs)
+                last_layer = layer
 
             # Update weights dynamically using gradient descent
             for layer in self.layers:
                 if isinstance(layer, Layers.Dense):
-                    self.optimizer.update_params(layer)
+                    self.optimizer.update_params(layer=layer)
 
-            # Calculate the percentage of completion
-            percent = (epoch / epochs) * 100
-
-            # Update loading bar and print the loss
-            num_full_chars = int(self.pbar_len * (percent / 100)) # Float - int conversion (via truncation)
-            pbar = f"[{self.pbar_full_char * num_full_chars}{self.pbar_empty_char * (self.pbar_len - num_full_chars)}]"
-
-            # Variables formatted nicely for printing
-            formatted_epochs = f"{epoch}/{epochs}"
-            formatted_percentage = f"{(epoch / epochs) * 100:0<6.2f}%"[:7]
-            formatted_loss = f"{loss:.5f}"[:7]
-            formatted_total_improvement = f"{(self.first_loss - loss):0<16.5f}"[:7]
-            epochs_formatting_length = len(str(epochs))
-            
-            # If alerts are enabled, print the progress sheet
             if self.alert:
+                # Calculate the percentage of completion
+                percent = (epoch / epochs) * 100
+
+                # Update loading bar and print the loss
+                num_full_chars = int(self.pbar_len * (percent / 100)) # Float - int conversion (via truncation)
+                pbar = f"[{self.pbar_full_char * num_full_chars}{self.pbar_empty_char * (self.pbar_len - num_full_chars)}]"
+
+                # Variables formatted nicely for printing
+                formatted_epochs = f"{epoch}/{epochs}"
+                formatted_percentage = f"{(epoch / epochs) * 100:0<6.2f}%"[:7]
+                formatted_loss = f"{loss:.5f}"[:7]
+                formatted_total_improvement = f"{(self.first_loss - loss):0<16.5f}"[:7]
+                epochs_formatting_length = len(str(epochs))
+
                 if self.alert_freq is not None:
                     # If the alert frequency is set, only print the progress sheet at those intervals
                     if epoch % self.alert_freq == 0 or epoch == self.epochs:
@@ -132,6 +138,6 @@ class Loop:
                 else:
                     # Print the progress sheet
                     print(f"Training: {pbar} {formatted_percentage} | Loss: {formatted_loss} | Total Improvement: {formatted_total_improvement} | Epochs: {epoch:>{epochs_formatting_length}}/{epochs}")
-                
+
             if self.debug:
                 print(f"Outputs: {inputs}") # Outputs names as 'inputs' due to feedforward loop's nature
