@@ -6,7 +6,7 @@ within a neural network. It includes implementations of fully connected layers
 (Dense layers) and a variety of activation functions.
 
 Classes:
----------
+--------
 1. Dense:
     Represents a fully connected layer in a neural network. 
     Allows forward and backward propagation with support for different weight initialization methods.
@@ -70,6 +70,12 @@ Classes:
 
 21. Custom:
     Allows defining custom activation functions with user-specified forward and backward operations.
+
+22. ZeroCenteredSigmoid:
+    Custom activation function made by the author, meant to act as an improvement on conventional Sigmoid, scaled to the range -1 to 1.
+
+23. Dropout:
+    Implements the Dropout layer, randomly removing certain data to avoid over fitting the neural network, with controllable paramaters.
 
 22. Conv1D:
     Implements a kernal sliding in a 1D input across the whole input.
@@ -183,7 +189,7 @@ class Dense:
             "weights": self.weights,
             "biases": self.biases
         }
-    
+
     @classmethod
     def from_config(cls, config) -> 'Dense':
         from_config_dense = cls(
@@ -228,25 +234,201 @@ class Dense:
         self.dinputs = np.dot(dvalues, self.weights.T)
 
 class Sigmoid:
-    def __init__(self) -> None:
-        pass
-        
+    """
+    Sigmoid
+    =======
+    Sigmoid activation function.
+
+    Implements the sigmoid activation function with input and output
+    clipping to prevent overflow. The sigmoid function is defined as:
+    1 / (1 + exp(-x)).
+
+    Parameters
+    ----------
+    in_clip_min : float, optional
+        Minimum value to clip the input (default is -500).
+    in_clip_max : float, optional
+        Maximum value to clip the input (default is 500).
+    out_clip_min : float, optional
+        Minimum value to clip the output (default is 1e-7).
+    out_clip_max : float, optional
+        Maximum value to clip the output (default is 1 - 1e-7).
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+        If any of the input parameters are invalid.
+    """
+    def __init__(self,
+                 in_clip_min: RealNumber = -500,
+                 in_clip_max: RealNumber = 500,
+                 out_clip_min: RealNumber = 1e-7,
+                 out_clip_max: RealNumber = 1 - 1e-7
+        )-> None:
+
+        # Validate the clipping ranges to ensure they are correct
+        if in_clip_min >= in_clip_max:
+            raise ValueError("in_clip_min should be less than in_clip_max.")
+
+        if out_clip_min >= out_clip_max:
+            raise ValueError("out_clip_min should be less than out_clip_max.")
+
+        self.in_clip_min = in_clip_min
+        self.in_clip_max = in_clip_max
+        self.out_clip_min = out_clip_min
+        self.out_clip_max = out_clip_max
+
     def forward(self, inputs: np.ndarray) -> None:
+        """
+        Sigmoid layer forward pass
+        --------------------------
+        Parameters:
+            - 'inputs' (np.ndarray): The array to apply the sigmoid function to (element-wise)
+        """
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.sigmoid, self.inputs)
+
+        # Clip inputs to prevent overflow
+        self.outputs = np.clip(self.inputs, self.in_clip_min, self.in_clip_max)
+
+        # Sigmoid activation function: 1 / (1 + exp(-x))
+        self.outputs = 1 / (1 + np.exp(-self.outputs))
+
+        # Clip output to avoid extreme values
+        self.outputs = np.clip(self.outputs, self.out_clip_min, self.out_clip_max)
+
+        return self.outputs
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.sigmoid, self.inputs)
+        """
+        Backward pass for Sigmoid activation function.
+        
+        Computes the gradient of the loss with respect to the input during backpropagation.
+        The gradient is calculated as the derivative of the Sigmoid function 
+        multiplied by the gradient of the next layer (`dvalues`).
+        
+        Parameters
+        ----------
+        dvalues : np.ndarray
+            The gradient of the loss with respect to the output of this layer.
+        
+        Returns
+        -------
+        np.ndarray
+            The gradient of the loss with respect to the input of this layer.
+        """
+        self.dinputs = dvalues * (self.outputs * (1 - self.outputs))
+        return self.dinputs
 
     def get_config(self):
         """
-        Returns the configuartion of the Sigmoid layer
+        Get the configuration of the Sigmoid layer.
+
+        This method returns the current configuration of the Sigmoid layer, 
+        which includes the clipping values for both input and output.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the clipping values for input and output.
         """
-        return {}
-    
+        return {
+            "in_clip_min": self.in_clip_min,
+            "in_clip_max": self.in_clip_max,
+            "out_clip_min": self.out_clip_min,
+            "out_clip_max": self.out_clip_max
+        }
+
     @classmethod
-    def from_config(cls, config=None) -> 'Sigmoid':
-        return cls()
+    def from_config(cls, config: dict) -> 'Sigmoid':
+        """
+        Create a Sigmoid layer from a configuration dictionary.
+
+        This class method takes a configuration dictionary, which should contain
+        the clipping values for input and output, and initializes a `Sigmoid` layer 
+        with those values.
+
+        Parameters
+        ----------
+        config : dict
+            A dictionary containing the configuration values for the Sigmoid layer.
+            Expected keys: "in_clip_min", "in_clip_max", "out_clip_min", "out_clip_max".
+
+        Returns
+        -------
+        Sigmoid
+            A Sigmoid layer instance initialized with the provided configuration.
+        """
+        return cls(**config)
+
+class ZeroCenteredSigmoid:
+    """
+    Designed to be a better implementation of Sigmoid, following Tanh's range of -1 to 1, where x = 0, y = 0, making it zero centered
+
+    `Sigmoid`:
+        - Defined as Sigmoid(x) = 1 / (1 + e ** -x).
+        - lim (x -> ∞) Sigmoid(x) = 1.
+        - lim (x -> -∞) Sigmoid(x) = 0.
+        - Can get computationally expensive.
+        - Can result in overflows with exponential.
+        - Not zero centered.
+        - Vanishing gradient problem.
+        - Clipping implemented to prevent numerical overflow / instability (inf, -inf, nan).
+
+    `ZeroCenteredSigmoid`:
+        - Defined as ZeroCenteredSigmoid(x) = 2 * (1 / (1 + e ** -x)) - 1.
+        - Clipping implemented to prevent numerical overflow / instability (inf, -inf, nan).
+    """
+
+    def __init__(self,
+                 in_clip_min: RealNumber = -500,
+                 in_clip_max: RealNumber = 500,
+                 out_clip_min: RealNumber = 1e-7,
+                 out_clip_max: RealNumber = -1e-7
+        )-> None:
+
+        # Validate the clipping ranges to ensure they are correct
+        if in_clip_min >= in_clip_max:
+            raise ValueError("in_clip_min should be less than in_clip_max.")
+
+        if out_clip_min >= out_clip_max:
+            raise ValueError("out_clip_min should be less than out_clip_max.")
+
+        self.in_clip_min = in_clip_min
+        self.in_clip_max = in_clip_max
+        self.out_clip_min = out_clip_min
+        self.out_clip_max = out_clip_max
+
+    def forward(self, inputs: np.ndarray) -> None:
+        self.inputs = np.clip(inputs, self.in_clip_min, self.in_clip_max)
+        self.outputs = 2 * (1 / (1 + np.exp(-self.inputs))) - 1
+        self.outputs = np.clip(self.outputs, self.out_clip_min, self.out_clip_max)
+
+        return self.outputs
+
+    def backward(self, dvalues: np.ndarray) -> None:
+        sigmoid_value = 2 / (1 + np.exp(-self.inputs)) - 1
+        self.dinputs = dvalues * (2 * sigmoid_value * (1 - sigmoid_value))
+
+        return self.dinputs
+
+    def get_config(self):
+        """
+        Returns the configuration of the ZeroCenteredSigmoid layer
+        """
+        return {
+            "in_clip_min": self.in_clip_min,
+            "in_clip_max": self.in_clip_max,
+            "out_clip_min": self.out_clip_min,
+            "out_clip_max": self.out_clip_max
+        }
+
+    @classmethod
+    def from_config(cls, config: dict) -> 'ZeroCenteredSigmoid':
+        return cls(**config)
 
 class ReLU:
     def __init__(self) -> None:
@@ -254,10 +436,10 @@ class ReLU:
 
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.relu, self.inputs)
+        self.outputs = np.where(inputs > 0.0, inputs, 0.0)
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.relu, self.inputs)
+        self.dinputs = dvalues * np.where(self.inputs > 0, 1.0, 0.0)
 
     def get_config(self):
         """
@@ -293,10 +475,10 @@ class Binary:
 
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.binary, self.inputs)
+        self.outputs = np.where(inputs >= 0, 1.0, 0.0)
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.dinputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.binary, self.inputs)
+        self.dinputs = np.zeros_like(self.inputs)
 
     def get_config(self):
         """
@@ -314,10 +496,10 @@ class LeakyReLU:
 
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
-        self.outputs = _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.leaky_relu, self.inputs, self.alpha)
+        self.outputs = np.where(inputs < 0, self.alpha * inputs, inputs)
 
     def backward(self, dvalues: np.ndarray) -> None:
-        self.outputs = dvalues * _Utils.Helpers.apply_elementwise(_Utils.Maths.ActivationFunctions.Derivatives.leaky_relu, self.inputs, self.alpha)
+        self.outputs = dvalues * np.where(self.inputs > 0.0, 1.0, self.alpha)
 
     def get_config(self):
         """
@@ -328,7 +510,7 @@ class LeakyReLU:
         }
 
     @classmethod
-    def from_config(cls, config) -> 'LeakyReLU':
+    def from_config(cls, config: dict) -> 'LeakyReLU':
         return cls(**config)
 
 class Swish:
@@ -380,13 +562,13 @@ class ELU:
 class Softmax:
     def __init__(self) -> None:
         pass
-    
+
     def forward(self, inputs: np.ndarray) -> None:
         self.inputs = inputs
 
         exp_values = np.exp(inputs - np.max(inputs, axis=-1, keepdims=True))  # Prevent overflow
         self.outputs = exp_values / np.sum(exp_values, axis=-1, keepdims=True)
-    
+
     def backward(self, dvalues: np.ndarray) -> None:
         self.dinputs = np.zeros_like(dvalues)
 
@@ -473,7 +655,7 @@ class Softplus:
         """Compute the Softplus activation."""
         self.inputs = inputs
         self.outputs = np.log(1 + np.exp(inputs))
-    
+
     def backward(self, dvalues: np.ndarray) -> np.ndarray:
         """Compute the derivative of Softplus with respect to the inputs."""
         self.dinputs = dvalues * (1 / (1 + np.exp(-self.inputs)))
@@ -499,7 +681,7 @@ class Arctan:
 
     def backward(self, dvalues: np.ndarray) -> None:
         """Compute the derivative of Arctan with respect to the inputs."""
-        self.dinputs = dvalues / (1 + self.inputs**2)  # Derivative of Arctan
+        self.dinputs = dvalues / (1 + self.inputs ** 2)  # Derivative of Arctan
 
     def get_config(self):
         """
@@ -788,6 +970,79 @@ class Flatten:
         Create an instance of Flatten (no parameters needed).
         """
         return cls()
+
+class Dropout:
+    def __init__(self, rate: RealNumber) -> None:
+        """
+        Initialize a 'Dropout' layer instance.
+
+        Params:
+            - 'rate' (RealNumber / Union[int, float]: Dropout rate, e.g., 0.5 means 50% dropout.
+
+        Returns:
+            - None (None): Python initialization 'magic methods' do not return values.
+        """
+        self.rate = rate
+
+    def forward(self, inputs: np.ndarray):
+        """
+        Forward pass, appply a numpy mask to the input array (np.ndarray).
+
+        Params:
+            - 'inputs' (np.ndarray): Neural network inputs, (2D standard).
+        
+        Returns:
+            - 'outputs' (np.ndarrau): The layer's outputs.
+        
+        Notes:
+            - Reccommended pybernetics and standard convention architecure uses [layer].outputs,
+              rather than relying on return values
+        """
+        # Generate random dropout mask: 1 means keep the neuron, 0 means drop it
+        self.mask = np.random.binomial(1, 1 - self.rate, size=inputs.shape)
+        self.outputs = inputs * self.mask
+        return self.outputs
+
+    def backward(self, d_values: np.ndarray):
+        """
+        Backward pass, simply propogate the gradient through the layer's mask.
+
+        Params:
+            - 'd_values' (np.ndarray): Derivative values from the previous (next) layer
+        Returns:
+            - 'dinputs' (np.ndarray: The dinputs of the layer.
+
+        Notes:
+            - Reccommended pybernetics and standard convention architecure uses [layer].dinputs,
+              rather than relying on return values.
+        """
+        self.dinputs = d_values * self.mask
+        return self.dinputs
+
+    def get_config(self) -> dict:
+        """
+        Deconstruct the 'Dropout' object to a kwarg (key word arguments) list, in dictionary format.
+
+        Returns:
+            - 'config' (dict): Config data for reconstruction.
+        """
+        return {
+            "rate": self.rate
+        }
+
+    @classmethod
+    def from_config(cls, config) -> 'Dropout':
+        """
+        Reconstruct the seralizated object using kwargs (key word arguments).
+
+        'config':
+            - The config dictionary to pass as kwargs to Dropout.__init__.
+            - Reccomended to be obtained from Dropout.get_config.
+
+        Returns:
+            - 'Dropout' (object): The reconstructed class from the kwarg dict.
+        """
+        return cls(**config)
 
 # Low support below:
 class Conv1D:
