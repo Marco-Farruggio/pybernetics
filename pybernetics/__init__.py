@@ -52,6 +52,7 @@ Modules and Classes:
     - `TReLU`: Implements the thresholded ReLU (TReLU) activation function.
     - `Clip`: Clips inputs to a defined minimum and maximum value range.
     - `Normalize`: Normalizes inputs to a specified range.
+    - `Dropout`: Implements the Dropout layer
     - `Custom`: Allows defining custom activation functions and their derivatives.
     - `Conv1D`: Implements a sliding 1D kernal applied to the input.
 
@@ -68,8 +69,7 @@ Modules and Classes:
 
 - **Models**: Defines high-level models for training neural networks, including:
     - `Sequential`: A feedforward neural network model that can be trained on datasets.
-    - `Save`: Saves a neural network using pickle as a .pkl file in compressed binary.
-    - `Load`: Loads a neural network using pickle unpackagine by a pybernetics-made .pkl file
+    - `load`: Loads a pybernetics saved neural network.
 
 - **_Typing**: (Internal) Type hints for classes and functions, including custom types for neural network components.
 
@@ -137,8 +137,9 @@ Shortens attribute chaining and makes the code more readable.
 
 Maths
 -----
-
-All mathematical operations are performed using NumPy arrays. As every function expects.
+- All mathematical operations are performed using NumPy arrays. As every function expects.
+- Memory usage optimized by in place operations and variable reusage and reallocation
+- Speed optimized using NumPy for base C computational speed with arrays
 
 Dedication
 ----------
@@ -155,7 +156,7 @@ __dependencies__ = ["numpy"]
 __created__ = "2024-05-12" # Rough estimate
 __license__ = "MIT" # Open-source community
 __description__ = "Pybernetics is a lightweight toolkit for the development and training of neural networks."
-__github__ = "https://github.com/WateryBird/pybernetics/tree/main"
+__github__ = "https://github.com/WateryBird/pybernetics"
 __url__ = __github__
 _random_seed = 0
 
