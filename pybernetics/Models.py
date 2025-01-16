@@ -213,6 +213,10 @@ class Sequential:
     def __call__(self, input: np.ndarray) -> np.ndarray:
         return self.process(input)
 
+class LongShortTermMemory:
+    def __init__(self) -> None:
+        pass
+
 _CLASS_NAME_TO_CLASS = {
     # Layers
     "Dense": Layers.Dense,
@@ -285,6 +289,7 @@ Default = Sequential
 Linear = Sequential
 FullyConnected = Sequential
 Dense = Sequential
+LSTM = LongShortTermMemory
 
 __all__ = [
     "Sequential",
@@ -294,5 +299,7 @@ __all__ = [
     "Linear",
     "FullyConnected",
     "Dense",
-    "load"
+    "load",
+    "LongShortTermMemory",
+    "LSTM"
 ]
