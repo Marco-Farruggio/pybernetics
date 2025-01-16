@@ -146,7 +146,7 @@ Dedication
 - Sam Blight"""
 
 # Base dunders & Metadata
-__version__ = "4.3.2-beta"
+__version__ = "4.3.3-beta"
 __author__ = "Marco Farruggio"
 __maintainer__ = "Marco Farruggio"
 __email__ = "marcofarruggiopersonal@gmail.com"
