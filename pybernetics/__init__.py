@@ -53,6 +53,7 @@ Modules and Classes:
     - `Clip`: Clips inputs to a defined minimum and maximum value range.
     - `Normalize`: Normalizes inputs to a specified range.
     - `Dropout`: Implements the Dropout layer
+    - `ZeroCenteredSigmoid`: Custom author designed activation function.
     - `Custom`: Allows defining custom activation functions and their derivatives.
     - `Conv1D`: Implements a sliding 1D kernal applied to the input.
 
@@ -146,7 +147,7 @@ Dedication
 - Sam Blight"""
 
 # Base dunders & Metadata
-__version__ = "4.3.3-beta"
+__version__ = "0.1.1"
 __author__ = "Marco Farruggio"
 __maintainer__ = "Marco Farruggio"
 __email__ = "marcofarruggiopersonal@gmail.com"
