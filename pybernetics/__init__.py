@@ -21,9 +21,6 @@ Key Features:
 
 Modules and Classes:
 --------------------
-- **_Utils**: Internal utility functions for mathematical operations and helper methods, including:
-    - `Maths`: Implements activation functions such as ReLU, sigmoid, softmax, and their derivatives.
-    - `Helpers`: Provides methods for element-wise operations on NumPy arrays.
 
 - **Dataset**: Generates or fetches datasets for training, including synthetic datasets 
     like spirals or real-world datasets using OpenML.
@@ -161,17 +158,14 @@ __github__ = "https://github.com/WateryBird/pybernetics"
 __url__ = __github__
 _random_seed = 0
 
-from . import _Utils # No Circular Imports
 from . import _Typing # Typehinting lazy imports styles to not need dependencies
 from . import Datasets # No Circular Imports
-from . import Layers # Requires _Utils
+from . import Layers
 from . import NaturalLanguageProcessing # Required __version__
 from . import Loss # Requires Layers, __version__
 from . import Optimizers # Requires Layers
 from . import Training # Requires Optimizer, Layers and __version__
 from . import Models # Requires ^^^
-from . import PyArrays
-from . import DataTypes
 
 __all__ = [
     "Datasets",
@@ -180,7 +174,5 @@ __all__ = [
     "Loss",
     "Optimizers",
     "Training",
-    "Models",
-    "PyArrays",
-    "DataTypes"
+    "Models"
 ]
