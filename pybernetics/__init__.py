@@ -154,7 +154,7 @@ __dependencies__ = ["numpy"]
 __created__ = "2024-05-12" # Rough estimate
 __license__ = "MIT" # Open-source community
 __description__ = "Pybernetics is a lightweight toolkit for the development and training of neural networks."
-__github__ = "https://github.com/WateryBird/pybernetics"
+__github__ = "https://github.com/Marco-Farruggio/pybernetics"
 __url__ = __github__
 _random_seed = 0
 
